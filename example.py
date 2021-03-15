@@ -14,7 +14,6 @@ def send_echo(message, teams_message):
         room_id = teams_message.roomId
         user_email = teams_message.personEmail
         raw_message = teams_message.text
-        is_one_on_one_space = 'ONE_ON_ONE' in activity['target']['tags']
 
     :return: a string. Or a List of strings. If you return a list of strings, each will be sent in
     an individual reply to the user.
