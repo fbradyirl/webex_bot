@@ -28,6 +28,7 @@ export WEBEX_TEAMS_ACCESS_TOKEN=<your bots token>
 
 `python example.py`
 
+See [example.py][4] for details:
 
 ```python
 import os
@@ -60,10 +61,18 @@ bot.add_command("/echo", "Send me back the message I sent you as a demo.", send_
 # Call `run` for the bot to wait for incoming messages.
 bot.run()
 ```
-See `example.py`
+
+4. Now, just interact 1-1 with the bot. Send it a message with the text:
+
+`/echo hello there`
+
+and you will see the reply.
+
 
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
 
 [3]: https://developer.webex.com/docs/bots
+
+[4]: example.py
