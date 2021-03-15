@@ -55,9 +55,11 @@ def send_echo(message, teams_message):
     return message
 
 
-# Add new commands to the box.
+# Add new commands for the bot to listen out for.
+# bot.add_command(command, help_message, function_to_call)
 bot.add_command("/echo", "Send me back the message I sent you as a demo.", send_echo)
 
+# Call `run` for the bot to wait for incoming messages.
 bot.run()
 ```
 See `example.py`
