@@ -7,7 +7,7 @@
 
 Python package for a Webex Bot based on websockets.
 
-* Uses the [websocket][1] module to receive incoming messages via a Mercury channel, thus avoiding the need
+* Uses the [websocket][1] module to receive incoming messages, thus avoiding the need
   to have a public IP for incoming webhooks.
 * Uses the [webexteamssdk][2] package to send back replies from the bot.
 
@@ -20,7 +20,7 @@ This is licensed under the MIT license.
 
 ## Getting started
 
-1. Install requirements.
+1. Install this module:
 
 `pip install webex_bot`
 
@@ -31,8 +31,6 @@ export WEBEX_TEAMS_ACCESS_TOKEN=<your bots token>
 ```
 
 3. Run the bot:
-
-Easily create a bot by
 
 ```python
 import os
