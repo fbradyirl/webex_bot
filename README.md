@@ -5,22 +5,19 @@
 ![Pipeline](https://github.com/fbradyirl/webex_bot/workflows/.github/workflows/main.yml/badge.svg)
 
 
-Python package for a Webex Bot based on websockets.
+By using this module, you can create a Webex bot extremely quickly in just a couple of lines of code.
 
-* Uses the [websocket][1] module to receive incoming messages, thus avoiding the need
-  to have a public IP for incoming webhooks.
-* Uses the [webexteamssdk][2] package to send back replies from the bot.
-
-This is licensed under the MIT license.
+There are other packages out there, but most of those require you to set up an ngrok tunnel to receives incoming messages to the bot when behind a firewall or inside a LAN. This package uses a websocket to receive messages from the user.
 
 ## Features
-
-* Receive incoming messages without having to run ngrok or similar.
-* Send replies based on your defined 'commands'.
+* Uses the [websockets][1] module to receive incoming messages, thus avoiding the need to have a public IP or use incoming webhooks.
+* Simply add 'commands' which are just strings which instruct the bot to perform some action and reply with some result.
+* Allows for single or multi-post responses. This is useful if you want to reply with a lot of data, but it won't all fit in a single response.
+* Uses the [webexteamssdk][2] package to send back replies from the bot.
 
 ## Getting started
 
-1. Install this module:
+1. Install this module from pypi:
 
 `pip install webex_bot`
 
@@ -30,7 +27,10 @@ This is licensed under the MIT license.
 export WEBEX_TEAMS_ACCESS_TOKEN=<your bots token>
 ```
 
-3. Run the bot:
+3. Run your script:
+
+`python example.py`
+
 
 ```python
 import os
