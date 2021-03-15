@@ -32,7 +32,7 @@ setup(
     install_requires=requirements,
     license="MIT license",
     long_description=readme + '\n\n' + history,
-    include_package_data=True,,
+    include_package_data=True,
     long_description_content_type="text/markdown",
     keywords='webex_bot',
     name='webex_bot',
