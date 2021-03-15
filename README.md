@@ -4,7 +4,7 @@
 
 By using this module, you can create a Webex bot extremely quickly in just a couple of lines of code.
 
-There are other packages out there, but most of those require you to set up an ngrok tunnel to receives incoming messages to the bot when behind a firewall or inside a LAN. This package uses a websocket to receive messages from the user.
+There are other packages out there, but most of those require you to set up an ngrok tunnel to receives incoming messages to the bot when behind a firewall or inside a LAN. This package instead uses a websocket to receive messages from the Webex cloud.
 
 ## Features
 * Uses the [websockets][1] module to receive incoming messages, thus avoiding the need to have a public IP or use incoming webhooks.
