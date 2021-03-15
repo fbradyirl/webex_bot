@@ -2,8 +2,7 @@
 
 [![Pypi](https://img.shields.io/pypi/v/webex_bot.svg)](https://pypi.python.org/pypi/webex_bot) [![Build Status](https://github.com/fbradyirl/webex_bot/workflows/Python%20package/badge.svg)](https://github.com/fbradyirl/webex_bot/workflows/)
 
-![Pipeline](https://github.com/fbradyirl/webex_bot/workflows/.github/workflows/main.yml/badge.svg)
-
+![Pipeline](https://github.com/fbradyirl/webex_bot/workflows/Python%20package/badge.svg)
 
 By using this module, you can create a Webex bot extremely quickly in just a couple of lines of code.
 
