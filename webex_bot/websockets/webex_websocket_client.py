@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 import uuid
-
+import backoff
 import websockets
 from webexteamssdk import WebexTeamsAPI
 
@@ -78,7 +78,9 @@ class WebexWebsocketClient(object):
                 logging.error('could not get/create device info')
                 raise Exception("No WDM device info")
 
+        @backoff.on_exception(backoff.expo, websockets.exceptions.ConnectionClosedError, max_time=60)
         async def _run():
+
             ws_url = self.device_info['webSocketUrl']
             logging.info(f"Opening websocket connection to {ws_url}")
             async with websockets.connect(ws_url) as websocket:
