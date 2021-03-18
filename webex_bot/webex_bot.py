@@ -1,7 +1,8 @@
 """Main module."""
 import logging
-import coloredlogs
 import os
+
+import coloredlogs
 
 from webex_bot.exceptions import BotException
 from webex_bot.formatting import quote_info

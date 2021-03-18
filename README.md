@@ -4,12 +4,16 @@
 
 By using this module, you can create a Webex bot extremely quickly in just a couple of lines of code.
 
-Some other packages require you to set up an ngrok tunnel to receive incoming messages when behind a firewall or inside a LAN. This package instead uses a websocket to receive messages from the Webex cloud.
+Some other packages require you to set up an ngrok tunnel to receive incoming messages when behind a firewall or inside
+a LAN. This package instead uses a websocket to receive messages from the Webex cloud.
 
 ## Features
-* Uses the [websockets][1] module to receive incoming messages, thus avoiding the need to have a public IP or use incoming webhooks.
+
+* Uses the [websockets][1] module to receive incoming messages, thus avoiding the need to have a public IP or use
+  incoming webhooks.
 * Simply add 'commands' which are just strings which instruct the bot to perform some action and reply with some result.
-* Allows for single or multi-post responses. This is useful if you want to reply with a lot of data, but it won't all fit in a single response.
+* Allows for single or multi-post responses. This is useful if you want to reply with a lot of data, but it won't all
+  fit in a single response.
 * Uses the [webexteamssdk][2] package to send back replies from the bot.
 
 ## Getting started
@@ -68,6 +72,11 @@ bot.run()
 
 and you will see the reply.
 
+# History
+
+### 0.1.2 (2021-03-15)
+
+* First release on PyPI.
 
 [1]: https://github.com/aaugustin/websockets
 

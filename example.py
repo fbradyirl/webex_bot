@@ -1,4 +1,5 @@
 import os
+
 from webex_bot.webex_bot import WebexBot
 
 # Create a Bot Object
@@ -19,6 +20,7 @@ def send_echo(message, teams_message):
     an individual reply to the user.
     """
     return message
+
 
 # Add new commands for the bot to listen out for.
 # bot.add_command(command, help_message, function_to_call)

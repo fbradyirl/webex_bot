@@ -10,7 +10,6 @@ Welcome to Webex Bot's documentation!
    usage
    modules
    contributing
-   history
 
 Indices and tables
 ==================
