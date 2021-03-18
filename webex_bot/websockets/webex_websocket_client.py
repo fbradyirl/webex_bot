@@ -79,7 +79,7 @@ class WebexWebsocketClient(object):
                 raise Exception("No WDM device info")
 
         @backoff.on_exception(backoff.expo, websockets.exceptions.ConnectionClosedError, max_time=60)
-        async def _run():
+        async def _connect_and_listen():
 
             ws_url = self.device_info['webSocketUrl']
             logging.info(f"Opening websocket connection to {ws_url}")
@@ -105,8 +105,8 @@ class WebexWebsocketClient(object):
                             f"An exception occurred while processing message. Ignoring. {messageProcessingException}")
 
         try:
-            asyncio.get_event_loop().run_until_complete(_run())
+            asyncio.get_event_loop().run_until_complete(_connect_and_listen())
         except Exception as runException:
             logging.error(f"runException: {runException}")
             # trigger re-connect
-            asyncio.get_event_loop().run_until_complete(_run())
+            asyncio.get_event_loop().run_until_complete(_connect_and_listen())
