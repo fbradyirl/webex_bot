@@ -114,12 +114,13 @@ class WebexBot(WebexWebsocketClient):
         user_email = teams_message.personEmail
         raw_message = teams_message.text
         is_one_on_one_space = 'ONE_ON_ONE' in activity['target']['tags']
-        # Log details on message
-        log.debug("Message from: " + user_email)
 
         if activity['actor']['type'] != 'PERSON':
             logging.debug('message is from a bot, ignoring')
             return
+
+        # Log details on message
+        log.info(f"Message from {user_email}: {raw_message}")
 
         if not self.check_user_approved(user_email=user_email):
             return
