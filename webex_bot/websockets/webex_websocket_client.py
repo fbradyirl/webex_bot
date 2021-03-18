@@ -41,8 +41,6 @@ class WebexWebsocketClient(object):
                 logging.debug(f"activity verb is: {activity['verb']} message id is {activity['id']}")
                 # logging.debug(f"activity: {activity}")
                 webex_message = self.teams.messages.get(activity['id'])
-
-                logging.info(f"Message from {webex_message.personEmail} {webex_message.text}")
                 logging.debug(f"webex_message: {webex_message}")
                 if self.on_message:
                     self.on_message(webex_message, activity)

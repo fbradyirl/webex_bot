@@ -22,6 +22,14 @@ class WebexBot(WebexWebsocketClient):
                  approved_users=[],
                  approved_domains=[],
                  default_action="/help"):
+        """
+        Initialise WebexBot.
+
+        @param teams_bot_token: Your token.
+        @param approved_users: List of email address who are allowed to chat to this bot.
+        @param approved_domains: List of domains which are allowed to chat to this bot.
+        @param default_action: Default reply action if an unknown command is received.
+        """
 
         log.info("Registering bot with cloud")
         WebexWebsocketClient.__init__(self,
@@ -46,6 +54,7 @@ class WebexBot(WebexWebsocketClient):
         self.approved_domains = approved_domains
         # Set default help message
         self.help_message = "Hello!  I understand the following commands:  \n"
+        self.approval_parameters_check()
 
     def add_command(self, command, help_message, callback):
         """
@@ -57,6 +66,40 @@ class WebexBot(WebexWebsocketClient):
         """
         self.commands[command.lower()] = {"help": help_message,
                                           "callback": callback}
+
+    def approval_parameters_check(self):
+        """
+        Simply logs a warning if no approved users or domains are set.
+        """
+        if len(self.approved_users) == 0 and len(self.approved_users) == 0:
+            log.warning("Your bot is open to anyone on Webex Teams. "
+                        "Consider limiting this to specific users or domains via the "
+                        "WebexBot(approved_domains=['example.com'], approved_users=['user@company.com']) "
+                        "bot parameters.")
+
+    def check_user_approved(self, user_email):
+        """
+        A user is approved if they are not in an approved domain or the approved_users list.
+
+        * If both those lists are empty, the user is approved.
+
+        Throws BotException if user is not approved.
+
+        @param user_email: The email from the user of the incoming message.
+        """
+        user_approved = False
+        self.approval_parameters_check()
+
+        if len(self.approved_users) == 0 and len(self.approved_users) == 0:
+            user_approved = True
+        elif len(self.approved_domains) > 0 and user_email.split('@')[1] in self.approved_domains:
+            user_approved = True
+        elif len(self.approved_users) > 0 and user_email in self.approved_users:
+            user_approved = True
+
+        if not user_approved:
+            log.warning(f"{user_email} is not approved to interact with bot. Ignoring.")
+        return user_approved
 
     def process_incoming_message(self, teams_message, activity):
         """
@@ -77,11 +120,8 @@ class WebexBot(WebexWebsocketClient):
             logging.debug('message is from a bot, ignoring')
             return
 
-        # Check if user is approved
-        if len(self.approved_users) > 0 and user_email not in self.approved_users:
-            # User NOT approved
-            log.error(f"{user_email} is not approved to interact with bot. Ignoring.")
-            return "Unapproved user"
+        if not self.check_user_approved(user_email=user_email):
+            return
 
         # Remove the Bots display name from the message is this is not a 1-1
         if not is_one_on_one_space:
