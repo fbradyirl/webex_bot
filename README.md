@@ -78,7 +78,7 @@ and you will see the reply.
 
 * First release on PyPI.
 
-### 0.1.3 (2021-03-23)
+### 0.1.4 (2021-03-23)
 
 * Better retry on websocket connection failure
 * Added support for approved domains
