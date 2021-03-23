@@ -1,7 +1,8 @@
 """Main module."""
 import logging
 import os
-
+import backoff
+import requests
 import coloredlogs
 
 from webex_bot.exceptions import BotException
@@ -49,13 +50,20 @@ class WebexBot(WebexWebsocketClient):
             "/help": {"help": "Get help.", "callback": self.send_help},
         }
         self.default_action = default_action
-        self.me = self.teams.people.me()
-        self.bot_display_name = self.me.displayName
         self.approved_users = approved_users
         self.approved_domains = approved_domains
         # Set default help message
         self.help_message = "Hello!  I understand the following commands:  \n"
         self.approval_parameters_check()
+        self.get_me_info()
+
+    @backoff.on_exception(backoff.expo, requests.exceptions.ConnectionError)
+    def get_me_info(self):
+        """
+        Fetch me info from webexteamssdk
+        """
+        self.me = self.teams.people.me()
+        self.bot_display_name = self.me.displayName
 
     def add_command(self, command, help_message, callback):
         """

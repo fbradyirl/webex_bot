@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 import uuid
-
+import socket
 import backoff
 import websockets
 from webexteamssdk import WebexTeamsAPI
@@ -79,7 +79,6 @@ class WebexWebsocketClient(object):
                 logging.error('could not get/create device info')
                 raise Exception("No WDM device info")
 
-        @backoff.on_exception(backoff.expo, websockets.exceptions.ConnectionClosedError, max_time=60)
         async def _websocket_recv(websocket):
             message = await websocket.recv()
             logging.debug("WebSocket Received Message(raw): %s\n" % message)
@@ -91,6 +90,8 @@ class WebexWebsocketClient(object):
                 logging.warning(
                     f"An exception occurred while processing message. Ignoring. {messageProcessingException}")
 
+        @backoff.on_exception(backoff.expo, websockets.exceptions.ConnectionClosedError)
+        @backoff.on_exception(backoff.expo, socket.gaierror)
         async def _connect_and_listen():
             ws_url = self.device_info['webSocketUrl']
             logging.info(f"Opening websocket connection to {ws_url}")
