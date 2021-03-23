@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import uuid
+
 import backoff
 import websockets
 from webexteamssdk import WebexTeamsAPI
@@ -79,30 +80,29 @@ class WebexWebsocketClient(object):
                 raise Exception("No WDM device info")
 
         @backoff.on_exception(backoff.expo, websockets.exceptions.ConnectionClosedError, max_time=60)
-        async def _connect_and_listen():
+        async def _websocket_recv(websocket):
+            message = await websocket.recv()
+            logging.debug("WebSocket Received Message(raw): %s\n" % message)
+            try:
+                msg = json.loads(message)
+                loop = asyncio.get_event_loop()
+                loop.run_in_executor(None, self._process_incoming_websocket_message, msg)
+            except Exception as messageProcessingException:
+                logging.warning(
+                    f"An exception occurred while processing message. Ignoring. {messageProcessingException}")
 
+        async def _connect_and_listen():
             ws_url = self.device_info['webSocketUrl']
             logging.info(f"Opening websocket connection to {ws_url}")
             async with websockets.connect(ws_url) as websocket:
                 logging.info("WebSocket Opened")
                 msg = {'id': str(uuid.uuid4()),
                        'type': 'authorization',
-                       'data': {
-                           'token': 'Bearer ' + self.access_token
-                       }
-                       }
+                       'data': {'token': 'Bearer ' + self.access_token}}
                 await websocket.send(json.dumps(msg))
 
                 while True:
-                    message = await websocket.recv()
-                    logging.debug("WebSocket Received Message(raw): %s\n" % message)
-                    try:
-                        msg = json.loads(message)
-                        loop = asyncio.get_event_loop()
-                        loop.run_in_executor(None, self._process_incoming_websocket_message, msg)
-                    except Exception as messageProcessingException:
-                        logging.warning(
-                            f"An exception occurred while processing message. Ignoring. {messageProcessingException}")
+                    await _websocket_recv(websocket)
 
         try:
             asyncio.get_event_loop().run_until_complete(_connect_and_listen())

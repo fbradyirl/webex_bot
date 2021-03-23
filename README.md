@@ -78,6 +78,12 @@ and you will see the reply.
 
 * First release on PyPI.
 
+### 0.1.3 (2021-03-23)
+
+* Better retry on websocket connection failure
+* Added support for approved domains
+* Other cleanup
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
