@@ -86,16 +86,17 @@ and you will see the reply.
 
 ### 0.1.5 (2021-03-23)
 
-* Retry websocket connection on socket.gaierror. Fixes #1
+* Retry websocket connection on socket.gaierror. ([#1][i1])
 
 ### 0.1.6 (2021-03-25)
 
-* Send ack on websocket message received. Fixes #2
+* Send ack on websocket message received. ([#2][i2])
 
 [1]: https://github.com/aaugustin/websockets
-
 [2]: https://github.com/CiscoDevNet/webexteamssdk
-
 [3]: https://developer.webex.com/docs/bots
-
 [4]: example.py
+
+
+[i1]: https://github.com/fbradyirl/webex_bot/issues/1
+[i2]: https://github.com/fbradyirl/webex_bot/issues/2
