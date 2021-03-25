@@ -1,8 +1,9 @@
 import asyncio
 import json
 import logging
-import uuid
 import socket
+import uuid
+
 import backoff
 import websockets
 from webexteamssdk import WebexTeamsAPI
@@ -30,6 +31,7 @@ class WebexWebsocketClient(object):
         self.device_url = device_url
         self.device_info = None
         self.on_message = on_message
+        self.websocket = None
 
     def _process_incoming_websocket_message(self, msg):
         """
@@ -39,14 +41,29 @@ class WebexWebsocketClient(object):
         if msg['data']['eventType'] == 'conversation.activity':
             activity = msg['data']['activity']
             if activity['verb'] == 'post':
-                logging.debug(f"activity verb is: {activity['verb']} message id is {activity['id']}")
-                # logging.debug(f"activity: {activity}")
+                message_id = activity['id']
+                logging.debug(f"activity verb=post. message id={message_id}")
                 webex_message = self.teams.messages.get(activity['id'])
                 logging.debug(f"webex_message: {webex_message}")
                 if self.on_message:
+                    # ack message first
+                    self._ack_message(message_id)
+                    # Now process it with the handler
                     self.on_message(webex_message, activity)
             else:
                 logging.debug(f"activity verb is: {activity['verb']} ")
+
+    def _ack_message(self, message_id):
+        """
+        Ack that this message has been processed. This will prevent the
+        message coming again.
+        @param message_id: activity message 'id'
+        """
+        logging.debug(f"WebSocket ack message with id={message_id}")
+        msg = {'type': 'ack',
+               'messageId': message_id}
+        self.websocket.send(json.dumps(msg))
+        logging.debug(f"WebSocket ack message with id={message_id}. Complete.")
 
     def _get_device_info(self):
         """
@@ -79,8 +96,8 @@ class WebexWebsocketClient(object):
                 logging.error('could not get/create device info')
                 raise Exception("No WDM device info")
 
-        async def _websocket_recv(websocket):
-            message = await websocket.recv()
+        async def _websocket_recv():
+            message = await self.websocket.recv()
             logging.debug("WebSocket Received Message(raw): %s\n" % message)
             try:
                 msg = json.loads(message)
@@ -95,15 +112,16 @@ class WebexWebsocketClient(object):
         async def _connect_and_listen():
             ws_url = self.device_info['webSocketUrl']
             logging.info(f"Opening websocket connection to {ws_url}")
-            async with websockets.connect(ws_url) as websocket:
+            async with websockets.connect(ws_url) as _websocket:
+                self.websocket = _websocket
                 logging.info("WebSocket Opened")
                 msg = {'id': str(uuid.uuid4()),
                        'type': 'authorization',
                        'data': {'token': 'Bearer ' + self.access_token}}
-                await websocket.send(json.dumps(msg))
+                await self.websocket.send(json.dumps(msg))
 
                 while True:
-                    await _websocket_recv(websocket)
+                    await _websocket_recv()
 
         try:
             asyncio.get_event_loop().run_until_complete(_connect_and_listen())

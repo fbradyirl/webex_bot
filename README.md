@@ -86,7 +86,11 @@ and you will see the reply.
 
 ### 0.1.5 (2021-03-23)
 
-* Retry websocket connection on socket.gaierror
+* Retry websocket connection on socket.gaierror. Fixes #1
+
+### 0.1.6 (2021-03-25)
+
+* Send ack on websocket message received. Fixes #2
 
 [1]: https://github.com/aaugustin/websockets
 
