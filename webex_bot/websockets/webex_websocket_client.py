@@ -11,12 +11,12 @@ from webexteamssdk import WebexTeamsAPI
 DEFAULT_DEVICE_URL = "https://wdm-a.wbx2.com/wdm/api/v1"
 
 DEVICE_DATA = {
-    "deviceName": "pywebsocket-client",
+    "deviceName": "webex_bot_pypi-client",
     "deviceType": "DESKTOP",
-    "localizedModel": "python",
-    "model": "python",
-    "name": "python-spark-client",
-    "systemName": "python-spark-client",
+    "localizedModel": "webex-bot-pypi",
+    "model": "webex_bot_pypi",
+    "name": "webex_bot_pypi-client",
+    "systemName": "webex_bot_pypi",
     "systemVersion": "0.1"
 }
 
@@ -60,34 +60,35 @@ class WebexWebsocketClient(object):
         @param message_id: activity message 'id'
         """
         logging.debug(f"WebSocket ack message with id={message_id}")
-        msg = {'type': 'ack',
-               'messageId': message_id}
-        self.websocket.send(json.dumps(msg))
+        ack_message = {'type': 'ack',
+                       'messageId': message_id}
+        self.websocket.send(json.dumps(ack_message))
         logging.debug(f"WebSocket ack message with id={message_id}. Complete.")
 
     def _get_device_info(self):
         """
-        Get device info.
+        Get device info from Webex Cloud.
 
         If it doesn't exist, one will be created.
         """
-        logging.debug('getting device list')
+        logging.debug('Getting device list')
         try:
             resp = self.teams._session.get(f"{self.device_url}/devices")
             for device in resp['devices']:
                 if device['name'] == DEVICE_DATA['name']:
                     self.device_info = device
+                    logging.debug(f"device_info: {self.device_info}")
                     return device
         except Exception as wdmException:
             logging.warning(f"wdmException: {wdmException}")
-            pass
 
-        logging.info('device does not exist, creating')
+        logging.info('Device does not exist, creating')
 
         resp = self.teams._session.post(f"{self.device_url}/devices", json=DEVICE_DATA)
         if resp is None:
             raise Exception("could not create WDM device")
         self.device_info = resp
+        logging.debug(f"self.device_info: {self.device_info}")
         return resp
 
     def run(self):
@@ -114,7 +115,7 @@ class WebexWebsocketClient(object):
             logging.info(f"Opening websocket connection to {ws_url}")
             async with websockets.connect(ws_url) as _websocket:
                 self.websocket = _websocket
-                logging.info("WebSocket Opened")
+                logging.info(f"WebSocket Opened.")
                 msg = {'id': str(uuid.uuid4()),
                        'type': 'authorization',
                        'data': {'token': 'Bearer ' + self.access_token}}

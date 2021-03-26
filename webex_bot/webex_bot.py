@@ -1,9 +1,10 @@
 """Main module."""
 import logging
 import os
+
 import backoff
-import requests
 import coloredlogs
+import requests
 
 from webex_bot.exceptions import BotException
 from webex_bot.formatting import quote_info
@@ -33,7 +34,7 @@ class WebexBot(WebexWebsocketClient):
         @param default_action: Default reply action if an unknown command is received.
         """
 
-        log.info("Registering bot with cloud")
+        log.info("Registering bot with Webex cloud")
         WebexWebsocketClient.__init__(self,
                                       teams_bot_token,
                                       on_message=self.process_incoming_message)
@@ -55,6 +56,7 @@ class WebexBot(WebexWebsocketClient):
         # Set default help message
         self.help_message = "Hello!  I understand the following commands:  \n"
         self.approval_parameters_check()
+        self.bot_display_name = ""
         self.get_me_info()
 
     @backoff.on_exception(backoff.expo, requests.exceptions.ConnectionError)
@@ -62,8 +64,9 @@ class WebexBot(WebexWebsocketClient):
         """
         Fetch me info from webexteamssdk
         """
-        self.me = self.teams.people.me()
-        self.bot_display_name = self.me.displayName
+        me = self.teams.people.me()
+        self.bot_display_name = me.displayName
+        log.info(f"Running as bot '{me.displayName}' with email {me.emails}")
 
     def add_command(self, command, help_message, callback):
         """
