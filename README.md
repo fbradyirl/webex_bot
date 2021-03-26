@@ -92,11 +92,20 @@ and you will see the reply.
 
 * Send ack on websocket message received. ([#2][i2])
 
+### 0.1.7 (2021-03-26)
+
+* Minor cleanup.
+* Log bot email on startup.
+
 [1]: https://github.com/aaugustin/websockets
+
 [2]: https://github.com/CiscoDevNet/webexteamssdk
+
 [3]: https://developer.webex.com/docs/bots
+
 [4]: example.py
 
 
 [i1]: https://github.com/fbradyirl/webex_bot/issues/1
+
 [i2]: https://github.com/fbradyirl/webex_bot/issues/2
