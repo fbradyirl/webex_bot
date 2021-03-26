@@ -2,10 +2,10 @@
 
 [![Pypi](https://img.shields.io/pypi/v/webex_bot.svg)](https://pypi.python.org/pypi/webex_bot) [![Build Status](https://github.com/fbradyirl/webex_bot/workflows/Python%20package/badge.svg)](https://github.com/fbradyirl/webex_bot/actions)
 
-By using this module, you can create a Webex bot extremely quickly in just a couple of lines of code.
+By using this module, you can create a [Webex Teams][5] messaging bot quickly in just a couple of lines of code.
 
-Some other packages require you to set up an ngrok tunnel to receive incoming messages when behind a firewall or inside
-a LAN. This package instead uses a websocket to receive messages from the Webex cloud.
+This modules does not require you to set up an ngrok tunnel to receive incoming messages when behind a firewall or
+inside a LAN. This package instead uses a websocket to receive messages from the Webex cloud.
 
 ## Features
 
@@ -14,6 +14,7 @@ a LAN. This package instead uses a websocket to receive messages from the Webex 
 * Simply add 'commands' which are just strings which instruct the bot to perform some action and reply with some result.
 * Allows for single or multi-post responses. This is useful if you want to reply with a lot of data, but it won't all
   fit in a single response.
+* Restrict bot to certain users or domains.
 * Uses the [webexteamssdk][2] package to send back replies from the bot.
 
 ## Getting started
@@ -105,6 +106,7 @@ and you will see the reply.
 
 [4]: example.py
 
+[5]: https://www.webex.com
 
 [i1]: https://github.com/fbradyirl/webex_bot/issues/1
 
