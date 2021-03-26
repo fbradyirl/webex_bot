@@ -4,7 +4,7 @@
 
 By using this module, you can create a [Webex Teams][5] messaging bot quickly in just a couple of lines of code.
 
-This modules does not require you to set up an ngrok tunnel to receive incoming messages when behind a firewall or
+This module does not require you to set up an ngrok tunnel to receive incoming messages when behind a firewall or
 inside a LAN. This package instead uses a websocket to receive messages from the Webex cloud.
 
 ## Features
