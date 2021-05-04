@@ -135,7 +135,7 @@ class WebexWebsocketClient(object):
             logging.info(f"Opening websocket connection to {ws_url}")
             async with websockets.connect(ws_url) as _websocket:
                 self.websocket = _websocket
-                logging.info(f"WebSocket Opened.")
+                logging.info("WebSocket Opened.")
                 msg = {'id': str(uuid.uuid4()),
                        'type': 'authorization',
                        'data': {'token': 'Bearer ' + self.access_token}}
