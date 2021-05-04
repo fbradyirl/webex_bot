@@ -9,7 +9,7 @@ import requests
 from webex_bot.exceptions import BotException
 from webex_bot.formatting import quote_info
 from webex_bot.models.response import Response
-from webex_bot.websockets.webex_websocket_client import WebexWebsocketClient
+from webex_bot.websockets.webex_websocket_client import WebexWebsocketClient, DEFAULT_DEVICE_URL
 
 log = logging.getLogger(__name__)
 coloredlogs.install(level=os.getenv("LOG_LEVEL", "INFO"),
@@ -24,6 +24,7 @@ class WebexBot(WebexWebsocketClient):
                  teams_bot_token,
                  approved_users=[],
                  approved_domains=[],
+                 device_url=DEFAULT_DEVICE_URL,
                  default_action="/help"):
         """
         Initialise WebexBot.
@@ -37,7 +38,8 @@ class WebexBot(WebexWebsocketClient):
         log.info("Registering bot with Webex cloud")
         WebexWebsocketClient.__init__(self,
                                       teams_bot_token,
-                                      on_message=self.process_incoming_message)
+                                      on_message=self.process_incoming_message,
+                                      device_url=device_url)
 
         # A dictionary of commands this bot listens to
         # Each key in the dictionary is a command, with associated help

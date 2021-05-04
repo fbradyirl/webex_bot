@@ -98,6 +98,10 @@ and you will see the reply.
 * Minor cleanup.
 * Log bot email on startup.
 
+### 0.1.8 (2021-05-04)
+
+* Fetch incoming message ID as base64.
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk

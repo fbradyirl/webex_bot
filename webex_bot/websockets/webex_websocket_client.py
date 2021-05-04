@@ -5,18 +5,19 @@ import socket
 import uuid
 
 import backoff
+import requests
 import websockets
 from webexteamssdk import WebexTeamsAPI
 
 DEFAULT_DEVICE_URL = "https://wdm-a.wbx2.com/wdm/api/v1"
 
 DEVICE_DATA = {
-    "deviceName": "webex_bot_pypi-client",
+    "deviceName": "pywebsocket-client",
     "deviceType": "DESKTOP",
-    "localizedModel": "webex-bot-pypi",
-    "model": "webex_bot_pypi",
-    "name": "webex_bot_pypi-client",
-    "systemName": "webex_bot_pypi",
+    "localizedModel": "python",
+    "model": "python",
+    "name": "python-spark-client",
+    "systemName": "python-spark-client",
     "systemVersion": "0.1"
 }
 
@@ -41,17 +42,36 @@ class WebexWebsocketClient(object):
         if msg['data']['eventType'] == 'conversation.activity':
             activity = msg['data']['activity']
             if activity['verb'] == 'post':
-                message_id = activity['id']
-                logging.debug(f"activity verb=post. message id={message_id}")
-                webex_message = self.teams.messages.get(activity['id'])
-                logging.debug(f"webex_message: {webex_message}")
+                logging.debug(f"activity={activity}")
+
+                message_base_64_id = self._get_base64_message_id(activity)
+                webex_message = self.teams.messages.get(message_base_64_id)
+                logging.debug(f"webex_message from message_base_64_id: {webex_message}")
                 if self.on_message:
                     # ack message first
-                    self._ack_message(message_id)
+                    self._ack_message(message_base_64_id)
                     # Now process it with the handler
                     self.on_message(webex_message, activity)
             else:
                 logging.debug(f"activity verb is: {activity['verb']} ")
+
+    def _get_base64_message_id(self, activity):
+        """
+        In order to geo-locate the correct DC to fetch the message from, you need to use the base64 Id of the
+        message.
+        @param activity: incoming websocket data
+        @return: base 64 message id
+        """
+        activity_id = activity['id']
+        logging.debug(f"activity verb=post. message id={activity_id}")
+        conversation_url = activity['target']['url']
+        conv_target_id = activity['target']['id']
+        conversation_message_url = conversation_url.replace(f"conversations/{conv_target_id}",
+                                                            f"messages/{activity_id}")
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        conversation_message = requests.get(conversation_message_url,
+                                            headers=headers).json()
+        return conversation_message['id']
 
     def _ack_message(self, message_id):
         """
