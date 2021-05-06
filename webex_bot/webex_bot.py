@@ -8,6 +8,7 @@ import requests
 
 from webex_bot.exceptions import BotException
 from webex_bot.formatting import quote_info
+from webex_bot.models.command import Command
 from webex_bot.models.response import Response
 from webex_bot.websockets.webex_websocket_client import WebexWebsocketClient, DEFAULT_DEVICE_URL
 
@@ -24,35 +25,39 @@ class WebexBot(WebexWebsocketClient):
                  teams_bot_token,
                  approved_users=[],
                  approved_domains=[],
-                 device_url=DEFAULT_DEVICE_URL,
-                 default_action="/help"):
+                 device_url=DEFAULT_DEVICE_URL):
         """
         Initialise WebexBot.
 
         @param teams_bot_token: Your token.
         @param approved_users: List of email address who are allowed to chat to this bot.
         @param approved_domains: List of domains which are allowed to chat to this bot.
-        @param default_action: Default reply action if an unknown command is received.
         """
 
         log.info("Registering bot with Webex cloud")
         WebexWebsocketClient.__init__(self,
                                       teams_bot_token,
                                       on_message=self.process_incoming_message,
+                                      on_card_action=self.process_incoming_card_action,
                                       device_url=device_url)
 
         # A dictionary of commands this bot listens to
         # Each key in the dictionary is a command, with associated help
         # text and callback function
         # By default supports 2 command, /echo and /help
+
+        self.help_command = Command(command_keyword="/help",
+                                    help_message="Get help.",
+                                    card=None,
+                                    card_callback=self.send_help)
         self.commands = {
-            "/echo": {
-                "help": "Reply back with the same message sent.",
-                "callback": self.send_echo,
-            },
-            "/help": {"help": "Get help.", "callback": self.send_help},
+            Command(command_keyword="/echo",
+                    help_message="Reply back with the same message sent.",
+                    card=None,
+                    card_callback=self.send_echo),
+            self.help_command
         }
-        self.default_action = default_action
+        self.card_callback_commands = {}
         self.approved_users = approved_users
         self.approved_domains = approved_domains
         # Set default help message
@@ -70,7 +75,7 @@ class WebexBot(WebexWebsocketClient):
         self.bot_display_name = me.displayName
         log.info(f"Running as bot '{me.displayName}' with email {me.emails}")
 
-    def add_command(self, command, help_message, callback):
+    def add_command(self, command_class):
         """
         Add a new command to the bot
         :param command: The command string, example "/status"
@@ -78,8 +83,27 @@ class WebexBot(WebexWebsocketClient):
         :param callback: The function to run when this command is given
         :return:
         """
-        self.commands[command.lower()] = {"help": help_message,
-                                          "callback": callback}
+        self.commands.add(command_class)
+
+    # def add_command(self, command, help_message, callback):
+    #     """
+    #     Add a new command to the bot
+    #     :param command: The command string, example "/status"
+    #     :param help_message: A Help string for this command
+    #     :param callback: The function to run when this command is given
+    #     :return:
+    #     """
+    #     self.commands[command.lower()] = {"help": help_message,
+    #                                       "callback": callback}
+
+    # def add_card_callback_command(self, card_content, callback):
+    #     """
+    #     Add a new command to the bot
+    #     :param card_content: The card content which should contain CARD_CONTENT['actions'][0]['data']['callback'] to specify the command.
+    #     :param callback: The function to run when this command is given
+    #     :return:
+    #     """
+    #     self.card_callback_commands[card_content['actions'][0]['data']['callback'].lower()] = {"callback": callback}
 
     def approval_parameters_check(self):
         """
@@ -115,6 +139,20 @@ class WebexBot(WebexWebsocketClient):
             log.warning(f"{user_email} is not approved to interact with bot. Ignoring.")
         return user_approved
 
+    def process_incoming_card_action(self, attachment_actions, activity):
+        """
+        Process an incoming card action, determine the command and action,
+        and determine reply.
+        :param attachment_actions: The attachment_actions object
+        :param activity: The websocket activity object
+        :return:
+        """
+        raw_message = attachment_actions.inputs.get("callback")
+        logging.debug(f"raw_message (callback) ={raw_message}")
+
+        self.process_raw_command(raw_message, attachment_actions, activity['actor']['emailAddress'], activity,
+                                 is_card_command=True)
+
     def process_incoming_message(self, teams_message, activity):
         """
         Process an incoming message, determine the command and action,
@@ -123,7 +161,6 @@ class WebexBot(WebexWebsocketClient):
         :param activity: The websocket activity object
         :return:
         """
-        room_id = teams_message.roomId
         user_email = teams_message.personEmail
         raw_message = teams_message.text
         is_one_on_one_space = 'ONE_ON_ONE' in activity['target']['tags']
@@ -142,32 +179,45 @@ class WebexBot(WebexWebsocketClient):
         if not is_one_on_one_space:
             raw_message = raw_message.replace(self.bot_display_name, '').strip()
 
+        self.process_raw_command(raw_message, teams_message, user_email, activity)
+
+    def process_raw_command(self, raw_message, teams_message, user_email, activity, is_card_command=False):
+        room_id = teams_message.roomId
+        is_one_on_one_space = 'ONE_ON_ONE' in activity['target']['tags']
+
         # Find the command that was sent, if any
-        command = ""
-        for c in sorted(self.commands.items()):
-            # TODO: Remove all mentionedPeople
-            if raw_message.find(c[0]) != -1:
-                command = c[0]
-                log.debug("Found command: " + command)
-                # If a command was found, stop looking for others
-                break
+        command = self.help_command
+
+        for c in self.commands:
+            if not is_card_command:
+                if raw_message.find(c.command_keyword) != -1:
+                    command = c
+                    log.debug("Found command: " + command.command_keyword)
+                    # If a command was found, stop looking for others
+                    break
+            else:
+                if raw_message == c.command_keyword or raw_message == c.card_callback_keyword:
+                    command = c
+                    log.debug("Found command: " + command.command_keyword)
 
         # Build the reply to the user
         reply = ""
         reply_one_to_one = False
 
-        # Take action based on command
-        # If no command found, send the default_action
-        if command in [""] and self.default_action:
-            reply = self.commands[self.default_action]["callback"](raw_message, teams_message)
-        elif command in self.commands.keys():
-            message_without_command = WebexBot.get_message_passed_to_command(command, raw_message)
+        if not is_card_command and command.card is not None:
+            response = Response()
+            response.text = "This bot requires a client which can render cards."
+            response.attachments = {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": command.card
+            }
+            reply = response
+        else:
+            message_without_command = WebexBot.get_message_passed_to_command(command.command_keyword, raw_message)
             log.debug(f"Going to run command: '{command}' with input: '{message_without_command}'")
             reply, reply_one_to_one = self.run_command_and_handle_bot_exceptions(command=command,
                                                                                  message=message_without_command,
                                                                                  teams_message=teams_message)
-        else:
-            pass
 
         # allow command handlers to craft their own Teams message
         if reply and isinstance(reply, Response):
@@ -220,7 +270,7 @@ class WebexBot(WebexWebsocketClient):
 
     def run_command_and_handle_bot_exceptions(self, command, message, teams_message):
         try:
-            return self.commands[command]["callback"](message, teams_message), False
+            return command.card_callback(message, teams_message), False
         except BotException as e:
             log.warn(f"BotException: {e.debug_message}")
             return e.reply_message, e.reply_one_to_one
@@ -234,9 +284,9 @@ class WebexBot(WebexWebsocketClient):
         :return:
         """
         message = self.help_message
-        for c in sorted(self.commands.items()):
-            if c[1]["help"][0] != "*":
-                message += "* **%s** %s \n" % (c[0], c[1]["help"])
+        for c in self.commands:
+            if c.help_message != "*":
+                message += "* **%s** %s \n" % (c.command_keyword, c.help_message)
         return message
 
     def send_echo(self, message, teams_message):

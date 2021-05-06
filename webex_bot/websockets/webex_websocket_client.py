@@ -26,12 +26,14 @@ class WebexWebsocketClient(object):
     def __init__(self,
                  access_token,
                  device_url=DEFAULT_DEVICE_URL,
-                 on_message=None):
+                 on_message=None,
+                 on_card_action=None):
         self.access_token = access_token
         self.teams = WebexTeamsAPI(access_token=access_token)
         self.device_url = device_url
         self.device_info = None
         self.on_message = on_message
+        self.on_card_action = on_card_action
         self.websocket = None
 
     def _process_incoming_websocket_message(self, msg):
@@ -52,6 +54,17 @@ class WebexWebsocketClient(object):
                     self._ack_message(message_base_64_id)
                     # Now process it with the handler
                     self.on_message(webex_message, activity)
+            elif activity['verb'] == 'cardAction':
+                logging.debug(f"activity={activity}")
+
+                message_base_64_id = self._get_base64_message_id(activity)
+                attachment_actions = self.teams.attachment_actions.get(message_base_64_id)
+                logging.info(f"attachment_actions from message_base_64_id: {attachment_actions}")
+                if self.on_card_action:
+                    # ack message first
+                    self._ack_message(message_base_64_id)
+                    # Now process it with the handler
+                    self.on_card_action(attachment_actions, activity)
             else:
                 logging.debug(f"activity verb is: {activity['verb']} ")
 
@@ -66,11 +79,13 @@ class WebexWebsocketClient(object):
         logging.debug(f"activity verb=post. message id={activity_id}")
         conversation_url = activity['target']['url']
         conv_target_id = activity['target']['id']
+        verb = "messages" if activity['verb'] == "post" else "attachment/actions"
         conversation_message_url = conversation_url.replace(f"conversations/{conv_target_id}",
-                                                            f"messages/{activity_id}")
+                                                            f"{verb}/{activity_id}")
         headers = {"Authorization": f"Bearer {self.access_token}"}
         conversation_message = requests.get(conversation_message_url,
                                             headers=headers).json()
+        logging.debug(f"conversation_message={conversation_message}")
         return conversation_message['id']
 
     def _ack_message(self, message_id):
@@ -83,7 +98,7 @@ class WebexWebsocketClient(object):
         ack_message = {'type': 'ack',
                        'messageId': message_id}
         self.websocket.send(json.dumps(ack_message))
-        logging.debug(f"WebSocket ack message with id={message_id}. Complete.")
+        logging.info(f"WebSocket ack message with id={message_id}. Complete.")
 
     def _get_device_info(self):
         """

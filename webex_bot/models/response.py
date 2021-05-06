@@ -12,6 +12,7 @@ class Response(object):
             self.attributes["markdown"] = None
             self.attributes["html"] = None
             self.attributes["files"] = list()
+            self.attributes["attachments"] = list()
 
     @property
     def text(self):
@@ -28,6 +29,14 @@ class Response(object):
     @files.setter
     def files(self, val):
         self.attributes["files"].append(val)
+
+    @property
+    def attachments(self):
+        return self.attributes["attachments"]
+
+    @attachments.setter
+    def attachments(self, val):
+        self.attributes["attachments"].append(val)
 
     @property
     def roomId(self):
