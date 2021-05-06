@@ -87,26 +87,6 @@ class WebexBot(WebexWebsocketClient):
         """
         self.commands.add(command_class)
 
-    # def add_command(self, command, help_message, callback):
-    #     """
-    #     Add a new command to the bot
-    #     :param command: The command string, example "/status"
-    #     :param help_message: A Help string for this command
-    #     :param callback: The function to run when this command is given
-    #     :return:
-    #     """
-    #     self.commands[command.lower()] = {"help": help_message,
-    #                                       "callback": callback}
-
-    # def add_card_callback_command(self, card_content, callback):
-    #     """
-    #     Add a new command to the bot
-    #     :param card_content: The card content which should contain CARD_CONTENT['actions'][0]['data']['callback'] to specify the command.
-    #     :param callback: The function to run when this command is given
-    #     :return:
-    #     """
-    #     self.card_callback_commands[card_content['actions'][0]['data']['callback'].lower()] = {"callback": callback}
-
     def approval_parameters_check(self):
         """
         Simply logs a warning if no approved users or domains are set.
@@ -192,13 +172,13 @@ class WebexBot(WebexWebsocketClient):
 
         for c in self.commands:
             if not is_card_command:
-                if raw_message.find(c.command_keyword) != -1:
+                if raw_message.lower().find(c.command_keyword) != -1:
                     command = c
                     log.debug("Found command: " + command.command_keyword)
                     # If a command was found, stop looking for others
                     break
             else:
-                if raw_message == c.command_keyword or raw_message == c.card_callback_keyword:
+                if raw_message.lower() == c.command_keyword or raw_message.lower() == c.card_callback_keyword:
                     command = c
                     log.debug("Found command: " + command.command_keyword)
 
@@ -285,11 +265,6 @@ class WebexBot(WebexWebsocketClient):
         :param teams_message: teams_message object
         :return:
         """
-        message = self.help_message
-        for c in self.commands:
-            if c.help_message != "*":
-                message += "* **%s** %s \n" % (c.command_keyword, c.help_message)
-
         response = Response()
         response.text = "This bot requires a client which can render cards."
         response.attachments = {
