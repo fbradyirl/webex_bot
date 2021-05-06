@@ -6,6 +6,7 @@ import backoff
 import coloredlogs
 import requests
 
+from webex_bot.cards.help_card import HELP_CARD_CONTENT
 from webex_bot.exceptions import BotException
 from webex_bot.formatting import quote_info
 from webex_bot.models.command import Command, CALLBACK_KEYWORD_KEY
@@ -40,23 +41,24 @@ class WebexBot(WebexWebsocketClient):
                                       on_message=self.process_incoming_message,
                                       on_card_action=self.process_incoming_card_action,
                                       device_url=device_url)
+        self.commands = {
+            Command(command_keyword="echo",
+                    help_message="Reply back with the same message sent.",
+                    card=None,
+                    card_callback=self.send_echo)
+        }
 
         # A dictionary of commands this bot listens to
         # Each key in the dictionary is a command, with associated help
         # text and callback function
         # By default supports 2 command, /echo and /help
 
-        self.help_command = Command(command_keyword="/help",
+        self.help_command = Command(command_keyword="help",
                                     help_message="Get help.",
                                     card=None,
                                     card_callback=self.send_help)
-        self.commands = {
-            Command(command_keyword="/echo",
-                    help_message="Reply back with the same message sent.",
-                    card=None,
-                    card_callback=self.send_echo),
-            self.help_command
-        }
+        self.commands.add(self.help_command)
+
         self.card_callback_commands = {}
         self.approved_users = approved_users
         self.approved_domains = approved_domains
@@ -287,7 +289,15 @@ class WebexBot(WebexWebsocketClient):
         for c in self.commands:
             if c.help_message != "*":
                 message += "* **%s** %s \n" % (c.command_keyword, c.help_message)
-        return message
+
+        response = Response()
+        response.text = "This bot requires a client which can render cards."
+        response.attachments = {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": self.help_card_with_commands()
+        }
+
+        return response
 
     def send_echo(self, message, teams_message):
         """
@@ -309,3 +319,14 @@ class WebexBot(WebexWebsocketClient):
         """
 
         return message.removeprefix(command).strip()
+
+    def help_card_with_commands(self):
+        help_card = HELP_CARD_CONTENT
+
+        for command in self.commands:
+            help_card['body'].append({
+                "type": "TextBlock",
+                "text": f"**{command.command_keyword}** _{command.help_message}_",
+                "wrap": True,
+            })
+        return help_card

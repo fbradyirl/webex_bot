@@ -13,10 +13,15 @@ class Command:
         self.card_callback = card_callback
         self.card_callback_keyword = None
         if card is not None:
-            try:
-                self.card_callback_keyword = card['actions'][0]['data'][CALLBACK_KEYWORD_KEY].lower()
-                log.info(f"self.card_callback_keyword={self.card_callback_keyword}")
-            except Exception:
-                log.error("You must ensure your hard has a 'callback_keyword' entry defined under "
-                          "'actions'>'data'>'callback_keyword'. Without this, the bot cannot process data submitted from this card to"
-                          f" card_callback={self.card_callback}")
+
+            if 'actions' in card:
+                if len(card['actions']) > 0:
+                    try:
+                        self.card_callback_keyword = card['actions'][0]['data'][CALLBACK_KEYWORD_KEY].lower()
+                        log.info(f"self.card_callback_keyword={self.card_callback_keyword}")
+                    except Exception:
+                        log.error("You must ensure your hard has a 'callback_keyword' entry defined under "
+                                  "'actions'>'data'>'callback_keyword'. Without this, the bot cannot process data submitted from this card to"
+                                  f" card_callback={self.card_callback}")
+                else:
+                    log.info(f"No actions defined in this card. command_keyword={command_keyword}")
