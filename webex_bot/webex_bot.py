@@ -8,7 +8,7 @@ import requests
 
 from webex_bot.exceptions import BotException
 from webex_bot.formatting import quote_info
-from webex_bot.models.command import Command
+from webex_bot.models.command import Command, CALLBACK_KEYWORD_KEY
 from webex_bot.models.response import Response
 from webex_bot.websockets.webex_websocket_client import WebexWebsocketClient, DEFAULT_DEVICE_URL
 
@@ -147,7 +147,7 @@ class WebexBot(WebexWebsocketClient):
         :param activity: The websocket activity object
         :return:
         """
-        raw_message = attachment_actions.inputs.get("callback")
+        raw_message = attachment_actions.inputs.get(CALLBACK_KEYWORD_KEY)
         logging.debug(f"raw_message (callback) ={raw_message}")
 
         self.process_raw_command(raw_message, attachment_actions, activity['actor']['emailAddress'], activity,
