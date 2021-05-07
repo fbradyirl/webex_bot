@@ -37,41 +37,26 @@ See [example.py][4] for details:
 
 ```python
 import os
+
+from webex_bot.commands.agenda import AgendaCommand
 from webex_bot.webex_bot import WebexBot
 
 # Create a Bot Object
 bot = WebexBot(teams_bot_token=os.getenv("WEBEX_TEAMS_ACCESS_TOKEN"))
 
-
-def send_echo(message, teams_message):
-    """
-    Sample command function that just echos back the sent message
-    :param message: message with command already stripped
-    :param teams_message: teams_message object. Get more info about the message received from this. e.g.
-
-        room_id = teams_message.roomId
-        user_email = teams_message.personEmail
-        raw_message = teams_message.text
-
-    :return: a string. Or a List of strings. If you return a list of strings, each will be sent in
-    an individual reply to the user.
-    """
-    return message
-
-
 # Add new commands for the bot to listen out for.
-# bot.add_command(command, help_message, function_to_call)
-bot.add_command("/echo", "Send me back the message I sent you as a demo.", send_echo)
+bot.add_command(AgendaCommand())
 
 # Call `run` for the bot to wait for incoming messages.
 bot.run()
+
 ```
 
 4. Now, just interact 1-1 with the bot. Send it a message with the text:
 
-`/echo hello there`
+`echo` or `agenda`
 
-and you will see the reply.
+and off you go!
 
 # History
 
@@ -101,6 +86,10 @@ and you will see the reply.
 ### 0.1.8 (2021-05-04)
 
 * Fetch incoming message ID as base64.
+
+### 0.2.0 (2021-05-07)
+
+* Switch format entirely to use cards.
 
 [1]: https://github.com/aaugustin/websockets
 
