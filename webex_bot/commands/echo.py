@@ -17,9 +17,15 @@ class EchoCommand(Command):
 
     def execute(self, message, attachment_actions):
         """
-        Sample command function that just echos back the sent message
+        If you want to respond to a submit operation on the card, you
+        would write code here!
+
+        You can return text string here or even another card (Response).
+
+        This sample command function simply echos back the sent message.
+
         :param message: message with command already stripped
         :param attachment_actions: attachment_actions object
-        :return:
+        :return: a string or Response object. Use Response if you want to return another card.
         """
         return quote_info(attachment_actions.inputs.get("message_typed"))

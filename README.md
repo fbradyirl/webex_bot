@@ -38,23 +38,58 @@ See [example.py][4] for details:
 ```python
 import os
 
-from webex_bot.commands.agenda import AgendaCommand
+from webex_bot.commands.echo import EchoCommand
 from webex_bot.webex_bot import WebexBot
 
 # Create a Bot Object
 bot = WebexBot(teams_bot_token=os.getenv("WEBEX_TEAMS_ACCESS_TOKEN"))
 
 # Add new commands for the bot to listen out for.
-bot.add_command(AgendaCommand())
+bot.add_command(EchoCommand())
 
 # Call `run` for the bot to wait for incoming messages.
 bot.run()
+```
 
+where EchoCommand is defined as:
+
+```python
+import logging
+
+from webex_bot.cards.echo_card import ECHO_CARD_CONTENT
+from webex_bot.formatting import quote_info
+from webex_bot.models.command import Command
+
+log = logging.getLogger(__name__)
+
+
+class EchoCommand(Command):
+
+    def __init__(self):
+        super().__init__(
+            command_keyword="echo",
+            help_message="Delete orgs under a partner.",
+            card=ECHO_CARD_CONTENT)
+
+    def execute(self, message, attachment_actions):
+        """
+        If you want to respond to a submit operation on the card, you
+        would write code here!
+
+        You can return text string here or even another card (Response).
+
+        This sample command function simply echos back the sent message.
+
+        :param message: message with command already stripped
+        :param attachment_actions: attachment_actions object
+        :return: a string or Response object. Use Response if you want to return another card.
+        """
+        return quote_info(attachment_actions.inputs.get("message_typed"))
 ```
 
 4. Now, just interact 1-1 with the bot. Send it a message with the text:
 
-`echo` or `agenda`
+`echo`
 
 and off you go!
 
@@ -101,7 +136,7 @@ and off you go!
 
 [3]: https://developer.webex.com/docs/bots
 
-[4]: example.py
+[4]: https://github.com/fbradyirl/webex_bot/example.py
 
 [5]: https://www.webex.com
 
