@@ -1,6 +1,6 @@
 import logging
 
-from webex_bot.cards.echo_card import AGENDA_CARD_CONTENT
+from webex_bot.cards.agenda_card import AGENDA_CARD_CONTENT
 from webex_bot.models.command import Command
 
 log = logging.getLogger(__name__)

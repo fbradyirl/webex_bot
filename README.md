@@ -91,6 +91,10 @@ and off you go!
 
 * Switch format entirely to use cards.
 
+### 0.2.1 (2021-05-07)
+
+* Import fix
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
