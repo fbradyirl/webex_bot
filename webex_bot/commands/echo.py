@@ -12,7 +12,7 @@ class EchoCommand(Command):
     def __init__(self):
         super().__init__(
             command_keyword="echo",
-            help_message="Delete orgs under a partner.",
+            help_message="Type in something here and it will be echo'd back to you. How useful is that!",
             card=ECHO_CARD_CONTENT)
 
     def execute(self, message, attachment_actions):

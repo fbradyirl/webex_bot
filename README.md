@@ -68,7 +68,7 @@ class EchoCommand(Command):
     def __init__(self):
         super().__init__(
             command_keyword="echo",
-            help_message="Delete orgs under a partner.",
+            help_message="Type in something here and it will be echo'd back to you. How useful is that!",
             card=ECHO_CARD_CONTENT)
 
     def execute(self, message, attachment_actions):
@@ -129,6 +129,10 @@ and off you go!
 ### 0.2.1 (2021-05-07)
 
 * Import fix
+
+### 0.2.2 (2021-05-08)
+
+* Typo fix
 
 [1]: https://github.com/aaugustin/websockets
 
