@@ -138,6 +138,10 @@ and off you go!
 
 * Fix no module found error
 
+### 0.2.4 (2021-05-10)
+
+* Pin websockets version
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
