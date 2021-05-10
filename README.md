@@ -134,6 +134,10 @@ and off you go!
 
 * Typo fix
 
+### 0.2.3 (2021-05-10)
+
+* Fix no module found error
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
