@@ -138,7 +138,7 @@ and off you go!
 
 * Fix no module found error
 
-### 0.2.4 (2021-05-10)
+### 0.2.5 (2021-05-10)
 
 * Pin websockets version
 
