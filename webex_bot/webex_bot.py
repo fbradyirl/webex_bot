@@ -87,7 +87,7 @@ class WebexBot(WebexWebsocketClient):
         """
         Simply logs a warning if no approved users or domains are set.
         """
-        if len(self.approved_users) == 0 and len(self.approved_users) == 0:
+        if len(self.approved_users) == 0 and len(self.approved_domains) == 0:
             log.warning("Your bot is open to anyone on Webex Teams. "
                         "Consider limiting this to specific users or domains via the "
                         "WebexBot(approved_domains=['example.com'], approved_users=['user@company.com']) "
