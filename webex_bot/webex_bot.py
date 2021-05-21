@@ -263,4 +263,6 @@ class WebexBot(WebexWebsocketClient):
         :return: message without command prefix
         """
 
-        return message.removeprefix(command).strip()
+        if message.startswith(command):
+            return message[len(command):]
+        return message
