@@ -142,6 +142,10 @@ and off you go!
 
 * Pin websockets version
 
+### 0.2.6 (2021-05-21)
+
+* Couple of bug fixes and support python 3.8 fully
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
