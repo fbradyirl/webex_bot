@@ -100,24 +100,25 @@ class WebexWebsocketClient(object):
         self.websocket.send(json.dumps(ack_message))
         logging.info(f"WebSocket ack message with id={message_id}. Complete.")
 
-    def _get_device_info(self):
+    def _get_device_info(self, check_existing=True):
         """
         Get device info from Webex Cloud.
 
         If it doesn't exist, one will be created.
         """
-        logging.debug('Getting device list')
-        try:
-            resp = self.teams._session.get(f"{self.device_url}/devices")
-            for device in resp['devices']:
-                if device['name'] == DEVICE_DATA['name']:
-                    self.device_info = device
-                    logging.debug(f"device_info: {self.device_info}")
-                    return device
-        except Exception as wdmException:
-            logging.warning(f"wdmException: {wdmException}")
+        if check_existing:
+            logging.debug('Getting device list')
+            try:
+                resp = self.teams._session.get(f"{self.device_url}/devices")
+                for device in resp['devices']:
+                    if device['name'] == DEVICE_DATA['name']:
+                        self.device_info = device
+                        logging.debug(f"device_info: {self.device_info}")
+                        return device
+            except Exception as wdmException:
+                logging.warning(f"wdmException: {wdmException}")
 
-        logging.info('Device does not exist, creating')
+            logging.info('Device does not exist, creating')
 
         resp = self.teams._session.post(f"{self.device_url}/devices", json=DEVICE_DATA)
         if resp is None:
@@ -163,5 +164,8 @@ class WebexWebsocketClient(object):
             asyncio.get_event_loop().run_until_complete(_connect_and_listen())
         except Exception as runException:
             logging.error(f"runException: {runException}")
+            if self._get_device_info(check_existing=False) is None:
+                logging.error('could not create device info')
+                raise Exception("No WDM device info")
             # trigger re-connect
             asyncio.get_event_loop().run_until_complete(_connect_and_listen())

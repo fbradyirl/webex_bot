@@ -54,7 +54,7 @@ HELP_CARD_CONTENT = {
         {
             "type": "Action.OpenUrl",
             "title": "More Info",
-            "url": "https://www.yelp.com/biz/koi-palace-milpitas"
+            "url": "https://developer.webex.com/docs/bots"
         }
     ]
 }

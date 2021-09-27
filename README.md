@@ -146,6 +146,10 @@ and off you go!
 
 * Couple of bug fixes and support python 3.8 fully
 
+### 0.2.7 (2021-09-27)
+
+* Fix for #11 server rejected WebSocket connection: HTTP 404
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
