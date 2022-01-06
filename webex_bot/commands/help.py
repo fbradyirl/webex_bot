@@ -18,14 +18,15 @@ class HelpCommand(Command):
         self.card_callback = self.build_card
         self.card_populated = False
 
-    def execute(self, message, attachment_actions):
+    def execute(self, message, attachment_actions, activity):
         pass
 
-    def build_card(self, message, attachment_actions):
+    def build_card(self, message, attachment_actions, activity):
         """
         Construct a help message for users.
         :param message: message with command already stripped
         :param attachment_actions: attachment_actions object
+        :param activity: activity object
         :return:
         """
         response = Response()

@@ -53,7 +53,7 @@ class WebexWebsocketClient(object):
                     # ack message first
                     self._ack_message(message_base_64_id)
                     # Now process it with the handler
-                    self.on_message(webex_message, activity)
+                    self.on_message(teams_message=webex_message, activity=activity)
             elif activity['verb'] == 'cardAction':
                 logging.debug(f"activity={activity}")
 
@@ -64,7 +64,7 @@ class WebexWebsocketClient(object):
                     # ack message first
                     self._ack_message(message_base_64_id)
                     # Now process it with the handler
-                    self.on_card_action(attachment_actions, activity)
+                    self.on_card_action(attachment_actions=attachment_actions, activity=activity)
             else:
                 logging.debug(f"activity verb is: {activity['verb']} ")
 

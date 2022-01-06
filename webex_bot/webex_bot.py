@@ -148,7 +148,7 @@ class WebexBot(WebexWebsocketClient):
             return
 
         # Log details on message
-        log.info(f"Message from {user_email}: {raw_message}")
+        log.info(f"Message from {user_email}: {teams_message}")
 
         if not self.check_user_approved(user_email=user_email):
             return
@@ -195,7 +195,8 @@ class WebexBot(WebexWebsocketClient):
             log.debug(f"Going to run command: '{command}' with input: '{message_without_command}'")
             reply, reply_one_to_one = self.run_command_and_handle_bot_exceptions(command=command,
                                                                                  message=message_without_command,
-                                                                                 teams_message=teams_message)
+                                                                                 teams_message=teams_message,
+                                                                                 activity=activity)
 
         # allow command handlers to craft their own Teams message
         if reply and isinstance(reply, Response):
@@ -246,9 +247,9 @@ class WebexBot(WebexWebsocketClient):
         else:
             self.teams.messages.create(roomId=room_id, markdown=reply)
 
-    def run_command_and_handle_bot_exceptions(self, command, message, teams_message):
+    def run_command_and_handle_bot_exceptions(self, command, message, teams_message, activity):
         try:
-            return command.card_callback(message, teams_message), False
+            return command.card_callback(message, teams_message, activity), False
         except BotException as e:
             log.warn(f"BotException: {e.debug_message}")
             return e.reply_message, e.reply_one_to_one

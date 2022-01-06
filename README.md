@@ -71,7 +71,7 @@ class EchoCommand(Command):
             help_message="Type in something here and it will be echo'd back to you. How useful is that!",
             card=ECHO_CARD_CONTENT)
 
-    def execute(self, message, attachment_actions):
+    def execute(self, message, attachment_actions, activity):
         """
         If you want to respond to a submit operation on the card, you
         would write code here!
@@ -82,8 +82,12 @@ class EchoCommand(Command):
 
         :param message: message with command already stripped
         :param attachment_actions: attachment_actions object
+        :param activity: activity object
+
         :return: a string or Response object. Use Response if you want to return another card.
         """
+        email = activity["actor"]['emailAddress']
+
         return quote_info(attachment_actions.inputs.get("message_typed"))
 ```
 
@@ -149,6 +153,21 @@ and off you go!
 ### 0.2.7 (2021-09-27)
 
 * Fix for #11 server rejected WebSocket connection: HTTP 404
+
+### 0.2.8 (2022-01-06)
+
+#### Breaking change for existing cards:
+
+* Pass activity down to execute function so attibutes such as email can be fetched from card actions.
+* Update your existing `execute` functions to include the extra `activity` parameter.
+
+```python
+    def execute(self, message, attachment_actions, activity):
+        log.info(
+            f"activity={activity} ")
+        email = activity["actor"]['emailAddress']
+        return quote_info(f"person email is '{email}'")
+```
 
 [1]: https://github.com/aaugustin/websockets
 

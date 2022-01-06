@@ -14,7 +14,7 @@ class AgendaCommand(Command):
             help_message="Demo agenda card.",
             card=AGENDA_CARD_CONTENT)
 
-    def execute(self, message, attachment_actions):
+    def execute(self, message, attachment_actions, activity):
         """
         If you want to respond to a submit operation on the card, you
         would write code here!
@@ -25,6 +25,8 @@ class AgendaCommand(Command):
 
         :param message: message with command already stripped
         :param attachment_actions: attachment_actions object
+        :param activity: activity object
+
         :return:
         """
         pass
