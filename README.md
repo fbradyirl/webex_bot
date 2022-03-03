@@ -169,6 +169,14 @@ and off you go!
         return quote_info(f"person email is '{email}'")
 ```
 
+### 0.2.9 (2022-03-03)
+
+* Fixes for #14 & #16
+
+### 0.2.10 (2022-03-03)
+
+* Add new workflow for Github releases.
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
