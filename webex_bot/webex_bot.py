@@ -95,7 +95,7 @@ class WebexBot(WebexWebsocketClient):
 
     def check_user_approved(self, user_email):
         """
-        A user is approved if they are not in an approved domain or the approved_users list.
+        A user is approved if they are in an approved domain or the approved_users list.
 
         * If both those lists are empty, the user is approved.
 
@@ -106,7 +106,7 @@ class WebexBot(WebexWebsocketClient):
         user_approved = False
         self.approval_parameters_check()
 
-        if len(self.approved_users) == 0 and len(self.approved_users) == 0:
+        if len(self.approved_users) == 0 and len(self.approved_domains) == 0:
             user_approved = True
         elif len(self.approved_domains) > 0 and user_email.split('@')[1] in self.approved_domains:
             user_approved = True
