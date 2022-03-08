@@ -1,11 +1,12 @@
 import logging
+from abc import ABC, abstractmethod
 
 log = logging.getLogger(__name__)
 
 CALLBACK_KEYWORD_KEY = 'callback_keyword'
 
 
-class Command:
+class Command(ABC):
     def __init__(self, command_keyword, help_message, card):
         self.command_keyword = command_keyword
         self.help_message = help_message
@@ -47,5 +48,9 @@ class Command:
             log.info(
                 f"Added default action for '{self.command_keyword}' {CALLBACK_KEYWORD_KEY}={self.card_callback_keyword}")
 
-    def execute(self, message, attachment_actions):
-        raise NotImplementedError("Hey, Don't forget to override this execute method if you have a submit callback!")
+    def pre_execute(self, message, attachment_actions, activity):
+        pass
+
+    @abstractmethod
+    def execute(self, message, attachment_actions, activity):
+        pass

@@ -193,11 +193,19 @@ class WebexBot(WebexWebsocketClient):
         else:
             message_without_command = WebexBot.get_message_passed_to_command(command.command_keyword, raw_message)
             log.debug(f"Going to run command: '{command}' with input: '{message_without_command}'")
+            pre_execute_reply, pre_execute_reply_one_to_one = self.run_pre_execute(command=command,
+                                                                                   message=message_without_command,
+                                                                                   teams_message=teams_message,
+                                                                                   activity=activity)
+            self.do_reply(pre_execute_reply, room_id, user_email, pre_execute_reply_one_to_one, is_one_on_one_space)
             reply, reply_one_to_one = self.run_command_and_handle_bot_exceptions(command=command,
                                                                                  message=message_without_command,
                                                                                  teams_message=teams_message,
                                                                                  activity=activity)
 
+        return self.do_reply(reply, room_id, user_email, reply_one_to_one, is_one_on_one_space)
+
+    def do_reply(self, reply, room_id, user_email, reply_one_to_one, is_one_on_one_space):
         # allow command handlers to craft their own Teams message
         if reply and isinstance(reply, Response):
             # If the Response lacks a roomId, set it to the incoming room
@@ -246,6 +254,16 @@ class WebexBot(WebexWebsocketClient):
                                        markdown=reply)
         else:
             self.teams.messages.create(roomId=room_id, markdown=reply)
+
+    def run_pre_execute(self, command, message, teams_message, activity):
+        """
+        This allows a reply to be sent back before the execute function is called. Useful if it is a long running task.
+        """
+        try:
+            return command.pre_execute(message, teams_message, activity), False
+        except BotException as e:
+            log.warn(f"BotException: {e.debug_message}")
+            return e.reply_message, e.reply_one_to_one
 
     def run_command_and_handle_bot_exceptions(self, command, message, teams_message, activity):
         try:

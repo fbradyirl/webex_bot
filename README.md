@@ -59,6 +59,8 @@ import logging
 from webex_bot.cards.echo_card import ECHO_CARD_CONTENT
 from webex_bot.formatting import quote_info
 from webex_bot.models.command import Command
+from webex_bot.cards.busy_card import BUSY_CARD_CONTENT
+from webex_bot.models.response import Response
 
 log = logging.getLogger(__name__)
 
@@ -71,6 +73,23 @@ class EchoCommand(Command):
             help_message="Type in something here and it will be echo'd back to you. How useful is that!",
             card=ECHO_CARD_CONTENT)
 
+    def pre_execute(self, message, attachment_actions, activity):
+        """
+        (optionol function).
+        Reply before running the execute function.
+
+        Useful to indicate the bot is handling it if it is a long running task.
+
+        :return: a string or Response object (or a list of either). Use Response if you want to return another card.
+        """
+        response = Response()
+        response.text = "This bot requires a client which can render cards."
+        response.attachments = {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": BUSY_CARD_CONTENT
+        }
+
+        return response
     def execute(self, message, attachment_actions, activity):
         """
         If you want to respond to a submit operation on the card, you
@@ -176,6 +195,12 @@ and off you go!
 ### 0.2.10 (2022-03-03)
 
 * Add new workflow for Github releases.
+
+### 0.2.11 (2022-03-08)
+
+* Add `pre_execute` function to Command. (optionol function to overide). Reply before running the execute function.
+  Useful to indicate the bot is handling it if it is a long running task.
+* See echo.py for example usage.
 
 [1]: https://github.com/aaugustin/websockets
 
