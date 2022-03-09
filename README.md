@@ -198,9 +198,13 @@ and off you go!
 
 ### 0.2.11 (2022-03-08)
 
-* Add `pre_execute` function to Command. (optionol function to overide). Reply before running the execute function.
+* Add `pre_execute` function to Command. (optional function to overide). Reply before running the execute function.
   Useful to indicate the bot is handling it if it is a long running task.
 * See echo.py for example usage.
+
+### 0.2.12 (2022-03-09)
+
+* Check for duplicate card callback keywords and raise exception if one exists.
 
 [1]: https://github.com/aaugustin/websockets
 

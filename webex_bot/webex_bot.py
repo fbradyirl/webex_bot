@@ -5,12 +5,11 @@ import os
 import backoff
 import coloredlogs
 import requests
-
 from webex_bot.commands.echo import EchoCommand
 from webex_bot.commands.help import HelpCommand
 from webex_bot.exceptions import BotException
 from webex_bot.formatting import quote_info
-from webex_bot.models.command import CALLBACK_KEYWORD_KEY
+from webex_bot.models.command import CALLBACK_KEYWORD_KEY, Command
 from webex_bot.models.response import Response
 from webex_bot.websockets.webex_websocket_client import WebexWebsocketClient, DEFAULT_DEVICE_URL
 
@@ -73,7 +72,7 @@ class WebexBot(WebexWebsocketClient):
         self.bot_display_name = me.displayName
         log.info(f"Running as bot '{me.displayName}' with email {me.emails}")
 
-    def add_command(self, command_class):
+    def add_command(self, command_class: Command):
         """
         Add a new command to the bot
         :param command: The command string, example "/status"
@@ -81,6 +80,16 @@ class WebexBot(WebexWebsocketClient):
         :param callback: The function to run when this command is given
         :return:
         """
+
+        for c in self.commands:
+            log.debug(f"Checking command '{c}' against {command_class}")
+            new_callback_keyword = command_class.card_callback_keyword
+            if c.card_callback_keyword == new_callback_keyword:
+                raise Exception(f"Error adding new command: '{command_class.command_keyword}'. "
+                                f"Duplicate callback_keyword found: "
+                                f"'{new_callback_keyword}'. Use a unique keyword in your "
+                                f"'{command_class.command_keyword}' adaptive card JSON.")
+
         self.commands.add(command_class)
 
     def approval_parameters_check(self):
@@ -167,16 +176,24 @@ class WebexBot(WebexWebsocketClient):
         command = self.help_command
 
         for c in self.commands:
+            user_command = raw_message.lower()
+            log.debug("--------")
+            log.debug(f"is_card_command: {is_card_command}")
+            log.debug(f"user_command: {user_command}")
+            log.debug(f"command_keyword: {c.command_keyword}")
+
             if not is_card_command:
-                if raw_message.lower().find(c.command_keyword) != -1:
+                if user_command.find(c.command_keyword) != -1:
                     command = c
-                    log.debug("Found command: " + command.command_keyword)
+                    log.debug(f"Found command: {command.command_keyword}")
                     # If a command was found, stop looking for others
                     break
             else:
-                if raw_message.lower() == c.command_keyword or raw_message.lower() == c.card_callback_keyword:
+                log.debug(f"card_callback_keyword: {c.card_callback_keyword}")
+                if user_command == c.command_keyword or user_command == c.card_callback_keyword:
                     command = c
-                    log.debug("Found command: " + command.command_keyword)
+                    log.debug(f"Found command: {command.command_keyword}")
+                    break
 
         # Build the reply to the user
         reply = ""

@@ -19,7 +19,7 @@ class EchoCommand(Command):
 
     def pre_execute(self, message, attachment_actions, activity):
         """
-        (optionol function).
+        (optional function).
         Reply before running the execute function.
 
         Useful to indicate the bot is handling it if it is a long running task.
