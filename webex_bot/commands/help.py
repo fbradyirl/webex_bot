@@ -46,12 +46,13 @@ class HelpCommand(Command):
                 # Sort list by keyword
                 sorted_commands_list = sorted(self.commands, key=lambda command: command.command_keyword)
                 for command in sorted_commands_list:
-                    help_card['body'].append({
-                        "type": "TextBlock",
-                        "text": f"**{command.command_keyword}** {command.help_message}",
-                        "fontType": "Monospace",
-                        "wrap": True,
-                    })
+                    if command.help_message:
+                        help_card['body'].append({
+                            "type": "TextBlock",
+                            "text": f"**{command.command_keyword}** {command.help_message}",
+                            "fontType": "Monospace",
+                            "wrap": True,
+                        })
                 self.card_populated = True
             return help_card
         return "I'm of no help at all."

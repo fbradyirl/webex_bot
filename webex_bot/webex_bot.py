@@ -200,6 +200,11 @@ class WebexBot(WebexWebsocketClient):
         reply_one_to_one = False
         message_without_command = WebexBot.get_message_passed_to_command(command.command_keyword, raw_message)
 
+        if command.delete_previous_message and hasattr(teams_message, 'messageId'):
+            previous_message_id = teams_message.messageId
+            log.info(f"delete_previous_message is True. Deleting message with ID: {previous_message_id}")
+            self.teams.messages.delete(previous_message_id)
+
         if not is_card_command and command.card is not None:
             response = Response()
             response.text = "This bot requires a client which can render cards."

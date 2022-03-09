@@ -231,6 +231,10 @@ and off you go!
 * add support for `pre_card_load_reply` overide. Reply before sending the initial card. Useful if it takes a long time
   for the card to load.
 
+### 0.2.14 (2022-03-09)
+
+* add support for deleting previous card in a chain.
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
