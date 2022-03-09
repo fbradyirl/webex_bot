@@ -73,6 +73,26 @@ class EchoCommand(Command):
             help_message="Type in something here and it will be echo'd back to you. How useful is that!",
             card=ECHO_CARD_CONTENT)
 
+    def pre_card_load_reply(self, message, attachment_actions, activity):
+        """
+        (optional function).
+        Reply before sending the initial card.
+
+        Useful if it takes a long time for the card to load.
+
+        :return: a string or Response object (or a list of either). Use Response if you want to return another card.
+        """
+
+        response = Response()
+        response.text = "This bot requires a client which can render cards."
+        response.attachments = {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": BUSY_CARD_CONTENT
+        }
+
+        # As with all replies, you can send a Response() (card), a string or a list of either or mix.
+        return [response, "Sit tight! I going to show the echo card soon."]
+
     def pre_execute(self, message, attachment_actions, activity):
         """
         (optionol function).
@@ -205,6 +225,11 @@ and off you go!
 ### 0.2.12 (2022-03-09)
 
 * Check for duplicate card callback keywords and raise exception if one exists.
+
+### 0.2.13 (2022-03-09)
+
+* add support for `pre_card_load_reply` overide. Reply before sending the initial card. Useful if it takes a long time
+  for the card to load.
 
 [1]: https://github.com/aaugustin/websockets
 

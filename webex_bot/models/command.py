@@ -11,6 +11,7 @@ class Command(ABC):
         self.command_keyword = command_keyword
         self.help_message = help_message
         self.card = card
+        self.pre_card_callback = self.execute
         self.card_callback = self.execute
         self.card_callback_keyword = None
 
@@ -47,6 +48,9 @@ class Command(ABC):
 
             log.info(
                 f"Added default action for '{self.command_keyword}' {CALLBACK_KEYWORD_KEY}={self.card_callback_keyword}")
+
+    def pre_card_load_reply(self, message, attachment_actions, activity):
+        pass
 
     def pre_execute(self, message, attachment_actions, activity):
         pass

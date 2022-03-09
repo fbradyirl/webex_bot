@@ -84,7 +84,7 @@ class WebexBot(WebexWebsocketClient):
         for c in self.commands:
             log.debug(f"Checking command '{c}' against {command_class}")
             new_callback_keyword = command_class.card_callback_keyword
-            if c.card_callback_keyword == new_callback_keyword:
+            if new_callback_keyword and c.card_callback_keyword == new_callback_keyword:
                 raise Exception(f"Error adding new command: '{command_class.command_keyword}'. "
                                 f"Duplicate callback_keyword found: "
                                 f"'{new_callback_keyword}'. Use a unique keyword in your "
@@ -198,6 +198,7 @@ class WebexBot(WebexWebsocketClient):
         # Build the reply to the user
         reply = ""
         reply_one_to_one = False
+        message_without_command = WebexBot.get_message_passed_to_command(command.command_keyword, raw_message)
 
         if not is_card_command and command.card is not None:
             response = Response()
@@ -206,9 +207,14 @@ class WebexBot(WebexWebsocketClient):
                 "contentType": "application/vnd.microsoft.card.adaptive",
                 "content": command.card
             }
+
+            pre_card_load_reply, pre_card_load_reply_one_to_one = self.run_pre_card_load_reply(command=command,
+                                                                                               message=message_without_command,
+                                                                                               teams_message=teams_message,
+                                                                                               activity=activity)
+            self.do_reply(pre_card_load_reply, room_id, user_email, pre_card_load_reply_one_to_one, is_one_on_one_space)
             reply = response
         else:
-            message_without_command = WebexBot.get_message_passed_to_command(command.command_keyword, raw_message)
             log.debug(f"Going to run command: '{command}' with input: '{message_without_command}'")
             pre_execute_reply, pre_execute_reply_one_to_one = self.run_pre_execute(command=command,
                                                                                    message=message_without_command,
@@ -272,9 +278,19 @@ class WebexBot(WebexWebsocketClient):
         else:
             self.teams.messages.create(roomId=room_id, markdown=reply)
 
+    def run_pre_card_load_reply(self, command, message, teams_message, activity):
+        """
+        This allows a reply to be sent back before the command/card function is called. Useful if it takes a while for the card to generate.
+        """
+        try:
+            return command.pre_card_load_reply(message, teams_message, activity), False
+        except BotException as e:
+            log.warn(f"BotException: {e.debug_message}")
+            return e.reply_message, e.reply_one_to_one
+
     def run_pre_execute(self, command, message, teams_message, activity):
         """
-        This allows a reply to be sent back before the execute function is called. Useful if it is a long running task.
+        This allows a reply to be sent back before the execute function is called. Useful if it takes a while to run.
         """
         try:
             return command.pre_execute(message, teams_message, activity), False
