@@ -44,7 +44,8 @@ class HelpCommand(Command):
         if self.commands is not None:
             if not self.card_populated:
                 # Sort list by keyword
-                sorted_commands_list = sorted(self.commands, key=lambda command: command.command_keyword)
+                sorted_commands_list = sorted(self.commands, key=lambda command: (
+                command.command_keyword is not None, command.command_keyword))
                 for command in sorted_commands_list:
                     if command.help_message:
                         help_card['body'].append({

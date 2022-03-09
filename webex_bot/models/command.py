@@ -7,13 +7,14 @@ CALLBACK_KEYWORD_KEY = 'callback_keyword'
 
 
 class Command(ABC):
-    def __init__(self, command_keyword, card, help_message=None, delete_previous_message=False):
+    def __init__(self, command_keyword=None, card=None, help_message=None, delete_previous_message=False,
+                 card_callback_keyword=None):
         self.command_keyword = command_keyword
         self.help_message = help_message
         self.card = card
         self.pre_card_callback = self.execute
         self.card_callback = self.execute
-        self.card_callback_keyword = None
+        self.card_callback_keyword = card_callback_keyword
         self.delete_previous_message = delete_previous_message
 
         # Now, if this card has a Action.Submit action, let's read the callback keyword,
