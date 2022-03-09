@@ -235,6 +235,10 @@ and off you go!
 
 * add support for deleting previous card in a chain.
 
+### 0.2.15 (2022-03-09)
+
+* Support for chained cards
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
