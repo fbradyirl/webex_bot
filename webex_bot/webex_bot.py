@@ -5,6 +5,7 @@ import os
 import backoff
 import coloredlogs
 import requests
+
 from webex_bot.commands.echo import EchoCommand
 from webex_bot.commands.help import HelpCommand
 from webex_bot.exceptions import BotException
@@ -202,7 +203,7 @@ class WebexBot(WebexWebsocketClient):
             log.debug(f"user_command: {user_command}")
             log.debug(f"command_keyword: {c.command_keyword}")
 
-            if not is_card_command:
+            if not is_card_command and c.command_keyword:
                 if user_command.find(c.command_keyword) != -1:
                     command = c
                     log.debug(f"Found command: {command.command_keyword}")
@@ -340,6 +341,6 @@ class WebexBot(WebexWebsocketClient):
         :return: message without command prefix
         """
 
-        if message.lower().startswith(command.lower()):
+        if command and message.lower().startswith(command.lower()):
             return message[len(command):]
         return message
