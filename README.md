@@ -42,7 +42,8 @@ from webex_bot.commands.echo import EchoCommand
 from webex_bot.webex_bot import WebexBot
 
 # Create a Bot Object
-bot = WebexBot(teams_bot_token=os.getenv("WEBEX_TEAMS_ACCESS_TOKEN"))
+bot = WebexBot(teams_bot_token=os.getenv("WEBEX_TEAMS_ACCESS_TOKEN"),
+               approved_rooms=['06586d8d-6aad-4201-9a69-0bf9eeb5766e'])
 
 # Add new commands for the bot to listen out for.
 bot.add_command(EchoCommand())
@@ -238,6 +239,10 @@ and off you go!
 ### 0.2.15 (2022-03-09)
 
 * Support for chained cards
+
+### 0.2.16 (2022-03-10)
+
+* Add support for approved rooms.
 
 [1]: https://github.com/aaugustin/websockets
 
