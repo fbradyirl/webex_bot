@@ -27,6 +27,7 @@ class WebexBot(WebexWebsocketClient):
                  teams_bot_token,
                  approved_users=[],
                  approved_domains=[],
+                 approved_rooms=[],
                  device_url=DEFAULT_DEVICE_URL):
         """
         Initialise WebexBot.
@@ -34,6 +35,7 @@ class WebexBot(WebexWebsocketClient):
         @param teams_bot_token: Your token.
         @param approved_users: List of email address who are allowed to chat to this bot.
         @param approved_domains: List of domains which are allowed to chat to this bot.
+        @param approved_rooms: List of rooms whose members are allowed to chat to this bot.
         """
 
         log.info("Registering bot with Webex cloud")
@@ -58,6 +60,7 @@ class WebexBot(WebexWebsocketClient):
         self.card_callback_commands = {}
         self.approved_users = approved_users
         self.approved_domains = approved_domains
+        self.approved_rooms = approved_rooms
         # Set default help message
         self.help_message = "Hello!  I understand the following commands:  \n"
         self.approval_parameters_check()
@@ -95,12 +98,13 @@ class WebexBot(WebexWebsocketClient):
 
     def approval_parameters_check(self):
         """
-        Simply logs a warning if no approved users or domains are set.
+        Simply logs a warning if no approved users, domains or rooms are set.
         """
-        if len(self.approved_users) == 0 and len(self.approved_domains) == 0:
+        if len(self.approved_users) == 0 and len(self.approved_domains) == 0 and len(self.approved_rooms) == 0:
             log.warning("Your bot is open to anyone on Webex Teams. "
-                        "Consider limiting this to specific users or domains via the "
-                        "WebexBot(approved_domains=['example.com'], approved_users=['user@company.com']) "
+                        "Consider limiting this to specific users, domains or room members via the "
+                        "WebexBot(approved_domains=['example.com'], approved_users=['user@company.com'], "
+                        "approved_rooms=['Y2lzY29zcGFyazovL3VzL1JPT00vZDUwMDE2ZWEtNmQ5My00MTY1LTg0ZWEtOGNmNTNhYjA3YzA5']) "
                         "bot parameters.")
 
     def check_user_approved(self, user_email):
@@ -116,16 +120,29 @@ class WebexBot(WebexWebsocketClient):
         user_approved = False
         self.approval_parameters_check()
 
-        if len(self.approved_users) == 0 and len(self.approved_domains) == 0:
+        if len(self.approved_users) == 0 and len(self.approved_domains) == 0 and len(self.approved_rooms) == 0:
             user_approved = True
         elif len(self.approved_domains) > 0 and user_email.split('@')[1] in self.approved_domains:
             user_approved = True
         elif len(self.approved_users) > 0 and user_email in self.approved_users:
             user_approved = True
+        elif len(self.approved_rooms) > 0 and self.is_user_member_of_room(user_email, self.approved_rooms):
+            user_approved = True
 
         if not user_approved:
             log.warning(f"{user_email} is not approved to interact with bot. Ignoring.")
         return user_approved
+
+    def is_user_member_of_room(self, user_email, approved_rooms):
+        is_user_member = False
+
+        for approved_room in approved_rooms:
+            room_members = self.teams.memberships.list(roomId=approved_room, personEmail=user_email)
+            for member in room_members:
+                if member.personEmail == user_email:
+                    is_user_member = True
+
+        return is_user_member
 
     def process_incoming_card_action(self, attachment_actions, activity):
         """
@@ -163,7 +180,7 @@ class WebexBot(WebexWebsocketClient):
         if not self.check_user_approved(user_email=user_email):
             return
 
-        # Remove the Bots display name from the message is this is not a 1-1
+        # Remove the Bots display name from the message if this is not a 1-1
         if not is_one_on_one_space:
             raw_message = raw_message.replace(self.bot_display_name, '').strip()
 
