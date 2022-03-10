@@ -46,8 +46,6 @@ class WebexBot(WebexWebsocketClient):
                                       on_card_action=self.process_incoming_card_action,
                                       device_url=device_url)
 
-        self.webex_api = WebexTeamsAPI(access_token=teams_bot_token)
-
         # A dictionary of commands this bot listens to
         # Each key in the dictionary is a command, with associated help
         # text and callback function
@@ -140,7 +138,7 @@ class WebexBot(WebexWebsocketClient):
         is_user_member = False
 
         for approved_room in approved_rooms:
-            room_members = self.webex_api.memberships.list(roomId=approved_room, personEmail=user_email)
+            room_members = self.teams.memberships.list(roomId=approved_room, personEmail=user_email)
             for member in room_members:
                 if member.personEmail == user_email:
                     is_user_member = True
