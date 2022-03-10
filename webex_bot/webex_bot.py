@@ -13,7 +13,6 @@ from webex_bot.formatting import quote_info
 from webex_bot.models.command import CALLBACK_KEYWORD_KEY, Command
 from webex_bot.models.response import Response
 from webex_bot.websockets.webex_websocket_client import WebexWebsocketClient, DEFAULT_DEVICE_URL
-from webexteamssdk import WebexTeamsAPI
 
 log = logging.getLogger(__name__)
 coloredlogs.install(level=os.getenv("LOG_LEVEL", "INFO"),
