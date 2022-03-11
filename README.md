@@ -244,6 +244,10 @@ and off you go!
 
 * Add support for approved rooms.
 
+### 0.2.17 (2022-03-11)
+
+* Add support for using [pyadaptivecards][6]
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
@@ -253,6 +257,8 @@ and off you go!
 [4]: https://github.com/fbradyirl/webex_bot/example.py
 
 [5]: https://www.webex.com
+
+[6]: https://github.com/CiscoSE/pyadaptivecards
 
 [i1]: https://github.com/fbradyirl/webex_bot/issues/1
 

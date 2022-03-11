@@ -10,7 +10,7 @@ from webex_bot.commands.echo import EchoCommand
 from webex_bot.commands.help import HelpCommand
 from webex_bot.exceptions import BotException
 from webex_bot.formatting import quote_info
-from webex_bot.models.command import CALLBACK_KEYWORD_KEY, Command
+from webex_bot.models.command import CALLBACK_KEYWORD_KEY, Command, COMMAND_KEYWORD_KEY
 from webex_bot.models.response import Response
 from webex_bot.websockets.webex_websocket_client import WebexWebsocketClient, DEFAULT_DEVICE_URL
 
@@ -75,6 +75,7 @@ class WebexBot(WebexWebsocketClient):
         me = self.teams.people.me()
         self.bot_display_name = me.displayName
         log.info(f"Running as bot '{me.displayName}' with email {me.emails}")
+        log.debug(f"Running as bot '{me}'")
 
     def add_command(self, command_class: Command):
         """
@@ -152,11 +153,15 @@ class WebexBot(WebexWebsocketClient):
         :param activity: The websocket activity object
         :return:
         """
-        raw_message = attachment_actions.inputs.get(CALLBACK_KEYWORD_KEY)
-        logging.debug(f"raw_message (callback) ={raw_message}")
+        callback_keyword = attachment_actions.inputs.get(CALLBACK_KEYWORD_KEY)
+        command_keyword = attachment_actions.inputs.get(COMMAND_KEYWORD_KEY)
+        is_card_callback_command = callback_keyword is not None
+        raw_message = callback_keyword if callback_keyword else command_keyword
+        logging.debug(f"raw_message (callback) ='{raw_message}' is_card_callback_command={is_card_callback_command}")
 
-        self.process_raw_command(raw_message, attachment_actions, activity['actor']['emailAddress'], activity,
-                                 is_card_command=True)
+        self.process_raw_command(raw_message,
+                                 attachment_actions, activity['actor']['emailAddress'], activity,
+                                 is_card_callback_command=is_card_callback_command)
 
     def process_incoming_message(self, teams_message, activity):
         """
@@ -186,7 +191,7 @@ class WebexBot(WebexWebsocketClient):
 
         self.process_raw_command(raw_message, teams_message, user_email, activity)
 
-    def process_raw_command(self, raw_message, teams_message, user_email, activity, is_card_command=False):
+    def process_raw_command(self, raw_message, teams_message, user_email, activity, is_card_callback_command=False):
         room_id = teams_message.roomId
         is_one_on_one_space = 'ONE_ON_ONE' in activity['target']['tags']
 
@@ -196,11 +201,11 @@ class WebexBot(WebexWebsocketClient):
         for c in self.commands:
             user_command = raw_message.lower()
             log.debug("--------")
-            log.debug(f"is_card_command: {is_card_command}")
+            log.debug(f"is_card_callback_command: {is_card_callback_command}")
             log.debug(f"user_command: {user_command}")
             log.debug(f"command_keyword: {c.command_keyword}")
 
-            if not is_card_command and c.command_keyword:
+            if not is_card_callback_command and c.command_keyword:
                 if user_command.find(c.command_keyword) != -1:
                     command = c
                     log.debug(f"Found command: {command.command_keyword}")
@@ -223,7 +228,7 @@ class WebexBot(WebexWebsocketClient):
             log.info(f"delete_previous_message is True. Deleting message with ID: {previous_message_id}")
             self.teams.messages.delete(previous_message_id)
 
-        if not is_card_command and command.card is not None:
+        if not is_card_callback_command and command.card is not None:
             response = Response()
             response.text = "This bot requires a client which can render cards."
             response.attachments = {

@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 log = logging.getLogger(__name__)
 
 CALLBACK_KEYWORD_KEY = 'callback_keyword'
+COMMAND_KEYWORD_KEY = "command_keyword"
 
 
 class Command(ABC):
@@ -29,6 +30,8 @@ class Command(ABC):
                             data = first_action['data']
                             if CALLBACK_KEYWORD_KEY in data:
                                 self.card_callback_keyword = first_action['data'][CALLBACK_KEYWORD_KEY]
+                            elif COMMAND_KEYWORD_KEY in data:
+                                self.command_keyword = first_action['data'][COMMAND_KEYWORD_KEY]
                             else:
                                 log.warning(
                                     f"card actions data but no entry for '{CALLBACK_KEYWORD_KEY}' for {command_keyword}")
