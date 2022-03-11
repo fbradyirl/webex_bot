@@ -1,27 +1,30 @@
 import logging
 
-from pyadaptivecards.actions import Submit
-from pyadaptivecards.card import AdaptiveCard
-from pyadaptivecards.components import TextBlock, Column, Image
-from pyadaptivecards.container import ColumnSet
-from pyadaptivecards.options import FontWeight, FontSize, ImageSize
+from webexteamssdk.models.cards import Colors, TextBlock, FontWeight, FontSize, Column, AdaptiveCard, ColumnSet, \
+    ImageSize, Image, Fact
+from webexteamssdk.models.cards.actions import Submit
 
 from webex_bot.models.command import Command, COMMAND_KEYWORD_KEY
 from webex_bot.models.response import Response
 
 log = logging.getLogger(__name__)
 
+HELP_COMMAND_KEYWORD = "help"
+
 
 class HelpCommand(Command):
 
-    def __init__(self):
+    def __init__(self, bot_name, bot_help_subtitle, bot_help_image):
         self.commands = None
         super().__init__(
-            command_keyword="help",
+            command_keyword=HELP_COMMAND_KEYWORD,
             help_message="Get Help",
             card=None)
         self.card_callback = self.build_card
         self.card_populated = False
+        self.bot_name = bot_name
+        self.bot_help_subtitle = bot_help_subtitle
+        self.bot_help_image = bot_help_image
 
     def execute(self, message, attachment_actions, activity):
         pass
@@ -34,24 +37,25 @@ class HelpCommand(Command):
         :param activity: activity object
         :return:
         """
-        heading = TextBlock("Ops Bot", weight=FontWeight.BOLDER, size=FontSize.LARGE)
+        heading = TextBlock(self.bot_name, weight=FontWeight.BOLDER, wrap=True, size=FontSize.LARGE)
+        subtitle = TextBlock(self.bot_help_subtitle, wrap=True, size=FontSize.SMALL, color=Colors.LIGHT)
 
-        # Bot Avatar. Todo: read this from the bot user payload.
         image = Image(
-            url="https://avatar-prod-us-east-2.webexcontent.com/Avtr~V1~1eb65fdf-9643-417f-9974-ad72cae0e10f/V1~4a3d9c4fa69e22b8c10b55e4f9ac15633e4e7e9c2e60a9424e8c122b378304ff~5fe5663c77434517b5ec460cb064762e~80",
+            url=self.bot_help_image,
             size=ImageSize.SMALL)
 
-        header_column = Column(items=[heading], width=2)
+        header_column = Column(items=[heading, subtitle], width=2)
         header_image_column = Column(
             items=[image],
             width=1,
         )
         actions, hint_texts = self.build_actions_and_hints()
-        hints_column = Column(items=hint_texts)
 
         card = AdaptiveCard(
             body=[ColumnSet(columns=[header_column, header_image_column]),
-                  ColumnSet(columns=[hints_column])],
+                  # ColumnSet(columns=[Column(items=[subtitle])]),
+                  # FactSet(facts=hint_texts),
+                  ],
             actions=actions)
 
         response = Response()
@@ -73,17 +77,15 @@ class HelpCommand(Command):
             sorted_commands_list = sorted(self.commands, key=lambda command: (
                 command.command_keyword is not None, command.command_keyword))
             for command in sorted_commands_list:
-                if command.help_message:
+                if command.help_message and command.command_keyword != HELP_COMMAND_KEYWORD:
                     action = Submit(
-                        title=command.command_keyword,
+                        title=f"{command.help_message}",
                         data={COMMAND_KEYWORD_KEY: command.command_keyword}
                     )
                     help_actions.append(action)
 
-                    hint = TextBlock(f"**{command.command_keyword}** {command.help_message}",
-                                     weight=FontWeight.LIGHTER,
-                                     wrap=True,
-                                     size=FontSize.SMALL)
+                    hint = Fact(title=command.command_keyword,
+                                value=command.help_message)
 
                     hint_texts.append(hint)
         return help_actions, hint_texts

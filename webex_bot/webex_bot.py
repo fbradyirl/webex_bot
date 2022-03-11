@@ -6,6 +6,7 @@ import backoff
 import coloredlogs
 import requests
 
+from webex_bot.commands.agenda import AgendaCommand
 from webex_bot.commands.echo import EchoCommand
 from webex_bot.commands.help import HelpCommand
 from webex_bot.exceptions import BotException
@@ -28,7 +29,10 @@ class WebexBot(WebexWebsocketClient):
                  approved_users=[],
                  approved_domains=[],
                  approved_rooms=[],
-                 device_url=DEFAULT_DEVICE_URL):
+                 device_url=DEFAULT_DEVICE_URL,
+                 include_demo_commands=True,
+                 bot_name="Webex Bot",
+                 bot_help_subtitle="Click on a button to begin."):
         """
         Initialise WebexBot.
 
@@ -50,11 +54,17 @@ class WebexBot(WebexWebsocketClient):
         # text and callback function
         # By default supports 2 command, echo and help
 
-        self.help_command = HelpCommand()
+        self.help_command = HelpCommand(
+            bot_name=bot_name,
+            bot_help_subtitle=bot_help_subtitle,
+            bot_help_image=self.teams.people.me().avatar)
         self.commands = {
-            EchoCommand(),
             self.help_command
         }
+        if include_demo_commands:
+            self.command.add(EchoCommand())
+            self.command.add(AgendaCommand())
+
         self.help_command.commands = self.commands
 
         self.card_callback_commands = {}

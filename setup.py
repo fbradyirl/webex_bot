@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-requirements = ['webexteamssdk', 'coloredlogs', 'websockets==8.1', 'backoff', 'pyadaptivecards==0.1.1']
+requirements = ['webexteamssdk', 'coloredlogs', 'websockets==8.1', 'backoff']
 
 setup_requirements = ['pytest-runner', ]
 
