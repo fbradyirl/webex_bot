@@ -253,6 +253,10 @@ and off you go!
 * Remove pyadaptivecards as it is actually built into [webexteamssdk][2]
 * Add options for bot name, help message etc.
 
+### 0.2.19 (2022-03-14)
+
+* Bug fix Thanks @muhammad-rafi
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk

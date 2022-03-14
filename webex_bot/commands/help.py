@@ -5,7 +5,7 @@ from webexteamssdk.models.cards import Colors, TextBlock, FontWeight, FontSize, 
 from webexteamssdk.models.cards.actions import Submit
 
 from webex_bot.models.command import Command, COMMAND_KEYWORD_KEY
-from webex_bot.models.response import Response
+from webex_bot.models.response import response_from_adaptive_card
 
 log = logging.getLogger(__name__)
 
@@ -58,14 +58,7 @@ class HelpCommand(Command):
                   ],
             actions=actions)
 
-        response = Response()
-        response.text = "This bot requires a client which can render cards."
-        response.attachments = {
-            "contentType": "application/vnd.microsoft.card.adaptive",
-            "content": card.to_dict()
-        }
-
-        return response
+        return response_from_adaptive_card(adaptive_card=card)
 
     def build_actions_and_hints(self):
         # help_card = HELP_CARD_CONTENT

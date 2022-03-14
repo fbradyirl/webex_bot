@@ -1,5 +1,26 @@
 import json
 
+from webexteamssdk.models.cards import AdaptiveCard
+
+
+@staticmethod
+def response_from_adaptive_card(adaptive_card: AdaptiveCard):
+    """
+    Convenience method for generating a Response from an AdaptiveCard.
+
+    @param adaptive_card: AdaptiveCard object
+    @return: Response object
+    """
+
+    response = Response()
+    response.text = "This bot requires a client which can render cards."
+    response.attachments = {
+        "contentType": "application/vnd.microsoft.card.adaptive",
+        "content": adaptive_card.to_dict()
+    }
+
+    return response
+
 
 class Response(object):
     def __init__(self, attributes=None):
