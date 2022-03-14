@@ -30,7 +30,7 @@ class WebexBot(WebexWebsocketClient):
                  approved_domains=[],
                  approved_rooms=[],
                  device_url=DEFAULT_DEVICE_URL,
-                 include_demo_commands=True,
+                 include_demo_commands=False,
                  bot_name="Webex Bot",
                  bot_help_subtitle="Click on a button to begin."):
         """
@@ -62,8 +62,8 @@ class WebexBot(WebexWebsocketClient):
             self.help_command
         }
         if include_demo_commands:
-            self.command.add(EchoCommand())
-            self.command.add(AgendaCommand())
+            self.commands.add(EchoCommand())
+            self.commands.add(AgendaCommand())
 
         self.help_command.commands = self.commands
 
