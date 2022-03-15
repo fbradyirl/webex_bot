@@ -3,7 +3,6 @@ import json
 from webexteamssdk.models.cards import AdaptiveCard
 
 
-@staticmethod
 def response_from_adaptive_card(adaptive_card: AdaptiveCard):
     """
     Convenience method for generating a Response from an AdaptiveCard.
