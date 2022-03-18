@@ -167,7 +167,7 @@ class WebexBot(WebexWebsocketClient):
         command_keyword = attachment_actions.inputs.get(COMMAND_KEYWORD_KEY)
         is_card_callback_command = callback_keyword is not None
         raw_message = callback_keyword if callback_keyword else command_keyword
-        logging.debug(f"raw_message (callback) ='{raw_message}' is_card_callback_command={is_card_callback_command}")
+        log.debug(f"raw_message (callback) ='{raw_message}' is_card_callback_command={is_card_callback_command}")
 
         self.process_raw_command(raw_message,
                                  attachment_actions, activity['actor']['emailAddress'], activity,
@@ -186,7 +186,7 @@ class WebexBot(WebexWebsocketClient):
         is_one_on_one_space = 'ONE_ON_ONE' in activity['target']['tags']
 
         if activity['actor']['type'] != 'PERSON':
-            logging.debug('message is from a bot, ignoring')
+            log.debug('message is from a bot, ignoring')
             return
 
         # Log details on message

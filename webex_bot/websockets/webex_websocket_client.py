@@ -9,6 +9,8 @@ import requests
 import websockets
 from webexteamssdk import WebexTeamsAPI
 
+logger = logging.getLogger(__name__)
+
 DEFAULT_DEVICE_URL = "https://wdm-a.wbx2.com/wdm/api/v1"
 
 DEVICE_DATA = {
@@ -44,29 +46,29 @@ class WebexWebsocketClient(object):
         if msg['data']['eventType'] == 'conversation.activity':
             activity = msg['data']['activity']
             if activity['verb'] == 'post':
-                logging.debug(f"activity={activity}")
+                logger.debug(f"activity={activity}")
 
                 message_base_64_id = self._get_base64_message_id(activity)
                 webex_message = self.teams.messages.get(message_base_64_id)
-                logging.debug(f"webex_message from message_base_64_id: {webex_message}")
+                logger.debug(f"webex_message from message_base_64_id: {webex_message}")
                 if self.on_message:
                     # ack message first
                     self._ack_message(message_base_64_id)
                     # Now process it with the handler
                     self.on_message(teams_message=webex_message, activity=activity)
             elif activity['verb'] == 'cardAction':
-                logging.debug(f"activity={activity}")
+                logger.debug(f"activity={activity}")
 
                 message_base_64_id = self._get_base64_message_id(activity)
                 attachment_actions = self.teams.attachment_actions.get(message_base_64_id)
-                logging.info(f"attachment_actions from message_base_64_id: {attachment_actions}")
+                logger.info(f"attachment_actions from message_base_64_id: {attachment_actions}")
                 if self.on_card_action:
                     # ack message first
                     self._ack_message(message_base_64_id)
                     # Now process it with the handler
                     self.on_card_action(attachment_actions=attachment_actions, activity=activity)
             else:
-                logging.debug(f"activity verb is: {activity['verb']} ")
+                logger.debug(f"activity verb is: {activity['verb']} ")
 
     def _get_base64_message_id(self, activity):
         """
@@ -76,7 +78,7 @@ class WebexWebsocketClient(object):
         @return: base 64 message id
         """
         activity_id = activity['id']
-        logging.debug(f"activity verb=post. message id={activity_id}")
+        logger.debug(f"activity verb=post. message id={activity_id}")
         conversation_url = activity['target']['url']
         conv_target_id = activity['target']['id']
         verb = "messages" if activity['verb'] == "post" else "attachment/actions"
@@ -85,7 +87,7 @@ class WebexWebsocketClient(object):
         headers = {"Authorization": f"Bearer {self.access_token}"}
         conversation_message = requests.get(conversation_message_url,
                                             headers=headers).json()
-        logging.debug(f"conversation_message={conversation_message}")
+        logger.debug(f"conversation_message={conversation_message}")
         return conversation_message['id']
 
     def _ack_message(self, message_id):
@@ -94,11 +96,11 @@ class WebexWebsocketClient(object):
         message coming again.
         @param message_id: activity message 'id'
         """
-        logging.debug(f"WebSocket ack message with id={message_id}")
+        logger.debug(f"WebSocket ack message with id={message_id}")
         ack_message = {'type': 'ack',
                        'messageId': message_id}
         self.websocket.send(json.dumps(ack_message))
-        logging.info(f"WebSocket ack message with id={message_id}. Complete.")
+        logger.info(f"WebSocket ack message with id={message_id}. Complete.")
 
     def _get_device_info(self, check_existing=True):
         """
@@ -107,51 +109,51 @@ class WebexWebsocketClient(object):
         If it doesn't exist, one will be created.
         """
         if check_existing:
-            logging.debug('Getting device list')
+            logger.debug('Getting device list')
             try:
                 resp = self.teams._session.get(f"{self.device_url}/devices")
                 for device in resp['devices']:
                     if device['name'] == DEVICE_DATA['name']:
                         self.device_info = device
-                        logging.debug(f"device_info: {self.device_info}")
+                        logger.debug(f"device_info: {self.device_info}")
                         return device
             except Exception as wdmException:
-                logging.warning(f"wdmException: {wdmException}")
+                logger.warning(f"wdmException: {wdmException}")
 
-            logging.info('Device does not exist, creating')
+            logger.info('Device does not exist, creating')
 
         resp = self.teams._session.post(f"{self.device_url}/devices", json=DEVICE_DATA)
         if resp is None:
             raise Exception("could not create WDM device")
         self.device_info = resp
-        logging.debug(f"self.device_info: {self.device_info}")
+        logger.debug(f"self.device_info: {self.device_info}")
         return resp
 
     def run(self):
         if self.device_info is None:
             if self._get_device_info() is None:
-                logging.error('could not get/create device info')
+                logger.error('could not get/create device info')
                 raise Exception("No WDM device info")
 
         async def _websocket_recv():
             message = await self.websocket.recv()
-            logging.debug("WebSocket Received Message(raw): %s\n" % message)
+            logger.debug("WebSocket Received Message(raw): %s\n" % message)
             try:
                 msg = json.loads(message)
                 loop = asyncio.get_event_loop()
                 loop.run_in_executor(None, self._process_incoming_websocket_message, msg)
             except Exception as messageProcessingException:
-                logging.warning(
+                logger.warning(
                     f"An exception occurred while processing message. Ignoring. {messageProcessingException}")
 
         @backoff.on_exception(backoff.expo, websockets.exceptions.ConnectionClosedError)
         @backoff.on_exception(backoff.expo, socket.gaierror)
         async def _connect_and_listen():
             ws_url = self.device_info['webSocketUrl']
-            logging.info(f"Opening websocket connection to {ws_url}")
+            logger.info(f"Opening websocket connection to {ws_url}")
             async with websockets.connect(ws_url) as _websocket:
                 self.websocket = _websocket
-                logging.info("WebSocket Opened.")
+                logger.info("WebSocket Opened.")
                 msg = {'id': str(uuid.uuid4()),
                        'type': 'authorization',
                        'data': {'token': 'Bearer ' + self.access_token}}
@@ -163,9 +165,9 @@ class WebexWebsocketClient(object):
         try:
             asyncio.get_event_loop().run_until_complete(_connect_and_listen())
         except Exception as runException:
-            logging.error(f"runException: {runException}")
+            logger.error(f"runException: {runException}")
             if self._get_device_info(check_existing=False) is None:
-                logging.error('could not create device info')
+                logger.error('could not create device info')
                 raise Exception("No WDM device info")
             # trigger re-connect
             asyncio.get_event_loop().run_until_complete(_connect_and_listen())
