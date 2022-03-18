@@ -97,7 +97,7 @@ class WebexWebsocketClient(object):
         logging.debug(f"WebSocket ack message with id={message_id}")
         ack_message = {'type': 'ack',
                        'messageId': message_id}
-        self.websocket.send(json.dumps(ack_message))
+        asyncio.run(self.websocket.send(json.dumps(ack_message)))
         logging.info(f"WebSocket ack message with id={message_id}. Complete.")
 
     def _get_device_info(self, check_existing=True):
