@@ -265,6 +265,10 @@ and off you go!
 * Fix for [#20][i20]
 * Use system SSL context when connecting websocket.
 
+### 0.2.21 (2022-04-07)
+
+* Fix for [#13][i13] - Update websockets lib to latest.
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
@@ -282,5 +286,7 @@ and off you go!
 [i2]: https://github.com/fbradyirl/webex_bot/issues/2
 
 [i6]: https://github.com/fbradyirl/webex_bot/issues/6
+
+[i13]: https://github.com/fbradyirl/webex_bot/issues/13
 
 [i20]: https://github.com/fbradyirl/webex_bot/issues/20
