@@ -2,9 +2,11 @@ import asyncio
 import json
 import logging
 import socket
+import ssl
 import uuid
 
 import backoff
+import certifi
 import requests
 import websockets
 from webexteamssdk import WebexTeamsAPI
@@ -20,6 +22,9 @@ DEVICE_DATA = {
     "systemName": "python-spark-client",
     "systemVersion": "0.1"
 }
+
+ssl_context = ssl.create_default_context()
+ssl_context.load_verify_locations(certifi.where())
 
 
 class WebexWebsocketClient(object):
@@ -97,7 +102,7 @@ class WebexWebsocketClient(object):
         logging.debug(f"WebSocket ack message with id={message_id}")
         ack_message = {'type': 'ack',
                        'messageId': message_id}
-        self.websocket.send(json.dumps(ack_message))
+        asyncio.run(self.websocket.send(json.dumps(ack_message)))
         logging.info(f"WebSocket ack message with id={message_id}. Complete.")
 
     def _get_device_info(self, check_existing=True):
@@ -149,7 +154,7 @@ class WebexWebsocketClient(object):
         async def _connect_and_listen():
             ws_url = self.device_info['webSocketUrl']
             logging.info(f"Opening websocket connection to {ws_url}")
-            async with websockets.connect(ws_url) as _websocket:
+            async with websockets.connect(ws_url, ssl=ssl_context) as _websocket:
                 self.websocket = _websocket
                 logging.info("WebSocket Opened.")
                 msg = {'id': str(uuid.uuid4()),
