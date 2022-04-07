@@ -19,6 +19,8 @@ inside a LAN. This package instead uses a websocket to receive messages from the
 
 ## Getting started
 
+**Only Python 3.9 is tested at this time.**
+
 1. Install this module from pypi:
 
 `pip install webex_bot`
@@ -257,6 +259,12 @@ and off you go!
 
 * Bug fix Thanks @muhammad-rafi
 
+### 0.2.20 (2022-04-07)
+
+* Fix for [#6][i6]
+* Fix for [#20][i20]
+* Use system SSL context when connecting websocket.
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
@@ -272,3 +280,7 @@ and off you go!
 [i1]: https://github.com/fbradyirl/webex_bot/issues/1
 
 [i2]: https://github.com/fbradyirl/webex_bot/issues/2
+
+[i6]: https://github.com/fbradyirl/webex_bot/issues/6
+
+[i20]: https://github.com/fbradyirl/webex_bot/issues/20

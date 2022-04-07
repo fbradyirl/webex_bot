@@ -1,4 +1,4 @@
 """Top-level package for Webex Bot."""
 
 __author__ = """Finbarr Brady"""
-__version__ = '0.2.19'
+__version__ = '0.2.20'

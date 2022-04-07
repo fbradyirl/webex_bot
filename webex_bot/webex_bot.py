@@ -206,27 +206,32 @@ class WebexBot(WebexWebsocketClient):
         is_one_on_one_space = 'ONE_ON_ONE' in activity['target']['tags']
 
         # Find the command that was sent, if any
-        command = self.help_command
+        command = None
+        user_command = raw_message.lower()
+        log.info(f"New user_command: {user_command}")
+        log.info(f"is_card_callback_command: {is_card_callback_command}")
 
         for c in self.commands:
-            user_command = raw_message.lower()
             log.debug("--------")
-            log.debug(f"is_card_callback_command: {is_card_callback_command}")
-            log.debug(f"user_command: {user_command}")
-            log.debug(f"command_keyword: {c.command_keyword}")
+            log.debug(f"Checking c.command_keyword: {c.command_keyword}")
 
             if not is_card_callback_command and c.command_keyword:
+                log.debug(f"c.command_keyword: {c.command_keyword}")
                 if user_command.find(c.command_keyword) != -1:
                     command = c
-                    log.debug(f"Found command: {command.command_keyword}")
                     # If a command was found, stop looking for others
                     break
             else:
                 log.debug(f"card_callback_keyword: {c.card_callback_keyword}")
                 if user_command == c.command_keyword or user_command == c.card_callback_keyword:
                     command = c
-                    log.debug(f"Found command: {command.command_keyword}")
                     break
+
+        if not command:
+            log.warning(f"Did not find command for {user_command}. Default to help card.")
+            command = self.help_command
+        else:
+            log.info(f"Found command: {command.command_keyword}")
 
         # Build the reply to the user
         reply = ""
