@@ -9,7 +9,7 @@ COMMAND_KEYWORD_KEY = "command_keyword"
 
 class Command(ABC):
     def __init__(self, command_keyword=None, card=None, help_message=None, delete_previous_message=False,
-                 card_callback_keyword=None):
+                 card_callback_keyword=None, approved_rooms=None):
         self.command_keyword = command_keyword
         self.help_message = help_message
         self.card = card
@@ -17,6 +17,7 @@ class Command(ABC):
         self.card_callback = self.execute
         self.card_callback_keyword = card_callback_keyword
         self.delete_previous_message = delete_previous_message
+        self.approved_rooms = approved_rooms
 
         # Now, if this card has a Action.Submit action, let's read the callback keyword,
         # or if it doesnt exist, add it.

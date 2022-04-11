@@ -269,6 +269,10 @@ and off you go!
 
 * Fix for [#13][i13] - Update websockets lib to latest.
 
+### 0.2.22 (2022-04-11)
+
+* Allow for commands to only respond if you are in the approved space.
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk

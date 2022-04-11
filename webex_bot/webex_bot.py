@@ -5,6 +5,7 @@ import os
 import backoff
 import coloredlogs
 import requests
+import webexteamssdk
 
 from webex_bot.commands.agenda import AgendaCommand
 from webex_bot.commands.echo import EchoCommand
@@ -90,10 +91,7 @@ class WebexBot(WebexWebsocketClient):
     def add_command(self, command_class: Command):
         """
         Add a new command to the bot
-        :param command: The command string, example "/status"
-        :param help_message: A Help string for this command
-        :param callback: The function to run when this command is given
-        :return:
+        @param command_class: Command Class to add
         """
 
         for c in self.commands:
@@ -118,7 +116,7 @@ class WebexBot(WebexWebsocketClient):
                         "approved_rooms=['Y2lzY29zcGFyazovL3VzL1JPT00vZDUwMDE2ZWEtNmQ5My00MTY1LTg0ZWEtOGNmNTNhYjA3YzA5']) "
                         "bot parameters.")
 
-    def check_user_approved(self, user_email):
+    def check_user_approved(self, user_email, approved_rooms):
         """
         A user is approved if they are in an approved domain or the approved_users list.
 
@@ -126,22 +124,23 @@ class WebexBot(WebexWebsocketClient):
 
         Throws BotException if user is not approved.
 
+        @param approved_rooms: list of spaces the user needs to be in to use this command.
         @param user_email: The email from the user of the incoming message.
         """
         user_approved = False
         self.approval_parameters_check()
 
-        if len(self.approved_users) == 0 and len(self.approved_domains) == 0 and len(self.approved_rooms) == 0:
+        if len(self.approved_users) == 0 and len(self.approved_domains) == 0 and len(approved_rooms) == 0:
             user_approved = True
         elif len(self.approved_domains) > 0 and user_email.split('@')[1] in self.approved_domains:
             user_approved = True
         elif len(self.approved_users) > 0 and user_email in self.approved_users:
             user_approved = True
-        elif len(self.approved_rooms) > 0 and self.is_user_member_of_room(user_email, self.approved_rooms):
+        elif len(approved_rooms) > 0 and self.is_user_member_of_room(user_email, approved_rooms):
             user_approved = True
 
         if not user_approved:
-            log.warning(f"{user_email} is not approved to interact with bot. Ignoring.")
+            log.warning(f"{user_email} is not approved to interact at this time. Ignoring.")
         return user_approved
 
     def is_user_member_of_room(self, user_email, approved_rooms):
@@ -149,10 +148,12 @@ class WebexBot(WebexWebsocketClient):
 
         for approved_room in approved_rooms:
             room_members = self.teams.memberships.list(roomId=approved_room, personEmail=user_email)
-            for member in room_members:
-                if member.personEmail == user_email:
-                    is_user_member = True
-
+            try:
+                for member in room_members:
+                    if member.personEmail == user_email:
+                        is_user_member = True
+            except webexteamssdk.exceptions.ApiError as apie:
+                log.warn(f"API error: {apie}")
         return is_user_member
 
     def process_incoming_card_action(self, attachment_actions, activity):
@@ -192,7 +193,7 @@ class WebexBot(WebexWebsocketClient):
         # Log details on message
         log.info(f"Message from {user_email}: {teams_message}")
 
-        if not self.check_user_approved(user_email=user_email):
+        if not self.check_user_approved(user_email=user_email, approved_rooms=self.approved_rooms):
             return
 
         # Remove the Bots display name from the message if this is not a 1-1
@@ -232,6 +233,11 @@ class WebexBot(WebexWebsocketClient):
             command = self.help_command
         else:
             log.info(f"Found command: {command.command_keyword}")
+
+            if command.approved_rooms:
+                if not self.check_user_approved(user_email=user_email, approved_rooms=command.approved_rooms):
+                    log.info(f"{user_email} is not allowed to run command: '{command.command_keyword}'")
+                    return
 
         # Build the reply to the user
         reply = ""
