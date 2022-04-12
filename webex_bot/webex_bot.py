@@ -97,13 +97,21 @@ class WebexBot(WebexWebsocketClient):
         """
 
         for c in self.commands:
-            log.debug(f"Checking command '{c}' against {command_class}")
+            command_class_name = type(command_class).__module__ + "." + type(command_class).__qualname__
+            c_name = type(c).__module__ + "." + type(c).__qualname__
+            log.debug(f"Checking command '{c_name}' against '{command_class_name}'")
+            new_command_keyword = command_class.command_keyword
             new_callback_keyword = command_class.card_callback_keyword
+            duplicate = None
             if new_callback_keyword and c.card_callback_keyword == new_callback_keyword:
-                raise Exception(f"Error adding new command: '{command_class.command_keyword}'. "
-                                f"Duplicate callback_keyword found: "
-                                f"'{new_callback_keyword}'. Use a unique keyword in your "
-                                f"'{command_class.command_keyword}' adaptive card JSON.")
+                duplicate = new_callback_keyword
+            elif new_command_keyword and c.command_keyword == new_command_keyword:
+                duplicate = new_command_keyword
+
+            if duplicate:
+                raise Exception(f"Error adding new command: '{command_class_name}'. "
+                                f"Duplicate keyword found: '{duplicate}' on existing {c_name}. "
+                                f"Use a unique keyword for your commands.")
 
         self.commands.add(command_class)
 
