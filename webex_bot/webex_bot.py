@@ -7,7 +7,6 @@ import coloredlogs
 import requests
 import webexteamssdk
 
-from webex_bot.commands.agenda import AgendaCommand
 from webex_bot.commands.echo import EchoCommand
 from webex_bot.commands.help import HelpCommand
 from webex_bot.exceptions import BotException
@@ -33,7 +32,7 @@ class WebexBot(WebexWebsocketClient):
                  device_url=DEFAULT_DEVICE_URL,
                  include_demo_commands=False,
                  bot_name="Webex Bot",
-                 bot_help_subtitle="Click on a button to begin."):
+                 bot_help_subtitle="Here are my available commands. Click one to begin."):
         """
         Initialise WebexBot.
 
@@ -41,6 +40,10 @@ class WebexBot(WebexWebsocketClient):
         @param approved_users: List of email address who are allowed to chat to this bot.
         @param approved_domains: List of domains which are allowed to chat to this bot.
         @param approved_rooms: List of rooms whose members are allowed to chat to this bot.
+        @param device_url: WDM Url
+        @param include_demo_commands: If True, any demo commands will be included.
+        @param bot_name: Your custom name for the bot.
+        @param bot_help_subtitle: Text to show in the help card.
         """
 
         log.info("Registering bot with Webex cloud")
@@ -63,8 +66,7 @@ class WebexBot(WebexWebsocketClient):
             self.help_command
         }
         if include_demo_commands:
-            self.commands.add(EchoCommand())
-            self.commands.add(AgendaCommand())
+            self.add_command(EchoCommand())
 
         self.help_command.commands = self.commands
 
@@ -104,6 +106,8 @@ class WebexBot(WebexWebsocketClient):
                                 f"'{command_class.command_keyword}' adaptive card JSON.")
 
         self.commands.add(command_class)
+        for chained_command in command_class.chained_commands:
+            self.commands.add(chained_command)
 
     def approval_parameters_check(self):
         """

@@ -1,10 +1,12 @@
 import logging
 
-from webex_bot.cards.busy_card import BUSY_CARD_CONTENT
-from webex_bot.cards.echo_card import ECHO_CARD_CONTENT
+from webexteamssdk.models.cards import Colors, TextBlock, FontWeight, FontSize, Column, AdaptiveCard, ColumnSet, \
+    Text, Image, HorizontalAlignment
+from webexteamssdk.models.cards.actions import Submit
+
 from webex_bot.formatting import quote_info
 from webex_bot.models.command import Command
-from webex_bot.models.response import Response
+from webex_bot.models.response import response_from_adaptive_card
 
 log = logging.getLogger(__name__)
 
@@ -14,8 +16,8 @@ class EchoCommand(Command):
     def __init__(self):
         super().__init__(
             command_keyword="echo",
-            help_message="Type in something and it will be echo'd back to you. How useful is that!",
-            card=ECHO_CARD_CONTENT)
+            help_message="Echo Words Back to You!",
+            chained_commands=[EchoCallback()])
 
     def pre_execute(self, message, attachment_actions, activity):
         """
@@ -26,14 +28,18 @@ class EchoCommand(Command):
 
         :return: a string or Response object (or a list of either). Use Response if you want to return another card.
         """
-        response = Response()
-        response.text = "This bot requires a client which can render cards."
-        response.attachments = {
-            "contentType": "application/vnd.microsoft.card.adaptive",
-            "content": BUSY_CARD_CONTENT
-        }
 
-        return response
+        image = Image(url="https://i.postimg.cc/2jMv5kqt/AS89975.jpg")
+        text1 = TextBlock("Working on it....", weight=FontWeight.BOLDER, wrap=True, size=FontSize.DEFAULT,
+                          horizontalAlignment=HorizontalAlignment.CENTER, color=Colors.DARK)
+        text2 = TextBlock("I am busy working on your request. Please continue to look busy while I do your work.",
+                          wrap=True, color=Colors.DARK)
+        card = AdaptiveCard(
+            body=[ColumnSet(columns=[Column(items=[image], width=2)]),
+                  ColumnSet(columns=[Column(items=[text1, text2])]),
+                  ])
+
+        return response_from_adaptive_card(card)
 
     def execute(self, message, attachment_actions, activity):
         """
@@ -50,4 +56,31 @@ class EchoCommand(Command):
 
         :return: a string or Response object (or a list of either). Use Response if you want to return another card.
         """
+
+        text1 = TextBlock("Echo", weight=FontWeight.BOLDER, size=FontSize.MEDIUM)
+        text2 = TextBlock("Type in something here and it will be echo'd back to you. How useful is that!",
+                          wrap=True, isSubtle=True)
+        input_text = Text(id="message_typed", placeholder="Type something here", maxLength=30)
+        input_column = Column(items=[input_text], width=2)
+
+        submit = Submit(title="Submit",
+                        data={
+                            "callback_keyword": "echo_callback"})
+
+        card = AdaptiveCard(
+            body=[ColumnSet(columns=[Column(items=[text1, text2], width=2)]),
+                  ColumnSet(columns=[input_column]),
+                  ], actions=[submit])
+
+        return response_from_adaptive_card(card)
+
+
+class EchoCallback(Command):
+
+    def __init__(self):
+        super().__init__(
+            card_callback_keyword="echo_callback",
+            delete_previous_message=True)
+
+    def execute(self, message, attachment_actions, activity):
         return quote_info(attachment_actions.inputs.get("message_typed"))
