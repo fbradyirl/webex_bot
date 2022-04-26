@@ -303,7 +303,7 @@ and off you go!
 
 [3]: https://developer.webex.com/docs/bots
 
-[4]: https://github.com/fbradyirl/webex_bot/example.py
+[4]: https://github.com/fbradyirl/webex_bot/blob/main/example.py
 
 [5]: https://www.webex.com
 
