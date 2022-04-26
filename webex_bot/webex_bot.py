@@ -12,7 +12,7 @@ from webex_bot.commands.help import HelpCommand
 from webex_bot.exceptions import BotException
 from webex_bot.formatting import quote_info
 from webex_bot.models.command import CALLBACK_KEYWORD_KEY, Command, COMMAND_KEYWORD_KEY
-from webex_bot.models.response import Response, response_from_adaptive_card
+from webex_bot.models.response import Response
 from webex_bot.websockets.webex_websocket_client import WebexWebsocketClient, DEFAULT_DEVICE_URL
 
 log = logging.getLogger(__name__)
@@ -254,7 +254,12 @@ class WebexBot(WebexWebsocketClient):
             self.teams.messages.delete(previous_message_id)
 
         if not is_card_callback_command and command.card is not None:
-            response = response_from_adaptive_card(command.card)
+            response = Response()
+            response.text = "This bot requires a client which can render cards."
+            response.attachments = {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": command.card
+            }
 
             pre_card_load_reply, pre_card_load_reply_one_to_one = self.run_pre_card_load_reply(command=command,
                                                                                                message=message_without_command,

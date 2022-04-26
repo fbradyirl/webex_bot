@@ -291,6 +291,10 @@ and off you go!
 * Updated Echo to use Adaptive Card objects (instead of JSON/Dict blob)
 * Added docs for some function params.
 
+### 0.3.1 (2022-04-26)
+
+* Fix old school dict cards
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
