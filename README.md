@@ -153,6 +153,11 @@ class EchoCallback(Command):
 
 and off you go!
 
+# Help
+
+* If you are a Cisco employee, you can join the [discussion space here][7].
+* Alternatively, open an issue or PR with a question on usage.
+
 # History
 
 ### 0.1.2 (2021-03-15)
@@ -308,6 +313,8 @@ and off you go!
 [5]: https://www.webex.com
 
 [6]: https://github.com/CiscoSE/pyadaptivecards
+
+[7]: https://eurl.io/#TeBLqZjLs
 
 [i1]: https://github.com/fbradyirl/webex_bot/issues/1
 
