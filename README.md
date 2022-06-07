@@ -302,7 +302,7 @@ and off you go!
 
 * Fix old school dict cards
 
-### 0.3.2 (2022-06-07)
+### 0.3.3 (2022-06-07)
 
 * Update [webexteamssdk][2] to latest release.
 
