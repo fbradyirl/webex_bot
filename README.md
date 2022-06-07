@@ -302,6 +302,10 @@ and off you go!
 
 * Fix old school dict cards
 
+### 0.3.2 (2022-06-07)
+
+* Update [webexteamssdk][2] to latest release.
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
