@@ -203,6 +203,8 @@ class WebexBot(WebexWebsocketClient):
         # Remove the Bots display name from the message if this is not a 1-1
         if not is_one_on_one_space:
             raw_message = raw_message.replace(self.bot_display_name, '').strip()
+            # Also try to remove just the first name
+            raw_message = raw_message.replace(self.bot_display_name.split()[0], '').strip()
 
         self.process_raw_command(raw_message, teams_message, user_email, activity)
 
