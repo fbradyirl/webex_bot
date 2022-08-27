@@ -151,8 +151,8 @@ class WebexBot(WebexWebsocketClient):
         is_user_member = False
 
         for approved_room in approved_rooms:
-            room_members = self.teams.memberships.list(roomId=approved_room, personEmail=user_email)
             try:
+                room_members = self.teams.memberships.list(roomId=approved_room, personEmail=user_email)
                 for member in room_members:
                     if member.personEmail == user_email:
                         is_user_member = True
