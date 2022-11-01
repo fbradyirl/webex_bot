@@ -152,6 +152,8 @@ class WebexWebsocketClient(object):
                     f"An exception occurred while processing message. Ignoring. {messageProcessingException}")
 
         @backoff.on_exception(backoff.expo, websockets.ConnectionClosedError)
+        @backoff.on_exception(backoff.expo, websockets.ConnectionClosedOK)
+        @backoff.on_exception(backoff.expo, websockets.ConnectionClosed)
         @backoff.on_exception(backoff.expo, socket.gaierror)
         async def _connect_and_listen():
             ws_url = self.device_info['webSocketUrl']

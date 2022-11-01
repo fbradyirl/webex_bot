@@ -306,6 +306,10 @@ and off you go!
 
 * Update [webexteamssdk][2] to latest release.
 
+### 0.3.4 (2022-11-01)
+
+* Auto re-connect on websockets.exceptions.ConnectionClosedOK
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
