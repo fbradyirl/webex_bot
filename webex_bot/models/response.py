@@ -13,6 +13,7 @@ def response_from_adaptive_card(adaptive_card: AdaptiveCard):
 
     response = Response()
     response.text = "This bot requires a client which can render cards."
+    response.markdown = "This bot requires a client which can render cards."
     response.attachments = {
         "contentType": "application/vnd.microsoft.card.adaptive",
         "content": adaptive_card.to_dict()
@@ -29,6 +30,7 @@ class Response(object):
             self.attributes = dict()
             self.attributes["text"] = None
             self.attributes["roomId"] = None
+            self.attributes["parentId"] = None
             self.attributes["markdown"] = None
             self.attributes["html"] = None
             self.attributes["files"] = list()
@@ -65,6 +67,14 @@ class Response(object):
     @roomId.setter
     def roomId(self, val):
         self.attributes["roomId"] = val
+
+    @property
+    def parentId(self):
+        return self.attributes["parentId"]
+
+    @parentId.setter
+    def parentId(self, val):
+        self.attributes["parentId"] = val
 
     @property
     def markdown(self):

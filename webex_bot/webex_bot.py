@@ -6,6 +6,7 @@ import backoff
 import coloredlogs
 import requests
 import webexteamssdk
+from webexteamssdk import ApiError
 
 from webex_bot.commands.echo import EchoCommand
 from webex_bot.commands.help import HelpCommand
@@ -87,7 +88,7 @@ class WebexBot(WebexWebsocketClient):
         """
         me = self.teams.people.me()
         self.bot_display_name = me.displayName
-        log.info(f"Running as bot '{me.displayName}' with email {me.emails}")
+        log.info(f"Running as {me.type} '{me.displayName}' with email {me.emails}")
         log.debug(f"Running as bot '{me}'")
 
     def add_command(self, command_class: Command):
@@ -247,6 +248,21 @@ class WebexBot(WebexWebsocketClient):
         reply = ""
         reply_one_to_one = False
         message_without_command = WebexBot.get_message_passed_to_command(command.command_keyword, raw_message)
+        thread_parent_id = None
+
+        if hasattr(teams_message,"inputs") and teams_message.inputs.get("thread_parent_id"):
+            thread_parent_id = teams_message.inputs.get("thread_parent_id")
+        elif 'parent' in activity:
+            log.info(f"activity: {activity}")
+
+            if activity['parent']['type'] == 'reply':
+                thread_parent_id = activity['parent']['id']
+            else:
+                # Some bug where message cannot be sent back in response to cardAction in thread.
+                # Must reply outside of the thread in this case.
+                thread_parent_id = None
+        else:
+            thread_parent_id = activity['id']
 
         if command.delete_previous_message and hasattr(teams_message, 'messageId'):
             previous_message_id = teams_message.messageId
@@ -265,7 +281,7 @@ class WebexBot(WebexWebsocketClient):
                                                                                                message=message_without_command,
                                                                                                teams_message=teams_message,
                                                                                                activity=activity)
-            self.do_reply(pre_card_load_reply, room_id, user_email, pre_card_load_reply_one_to_one, is_one_on_one_space)
+            self.do_reply(pre_card_load_reply, room_id, user_email, pre_card_load_reply_one_to_one, is_one_on_one_space, thread_parent_id)
             reply = response
         else:
             log.debug(f"Going to run command: '{command}' with input: '{message_without_command}'")
@@ -273,20 +289,22 @@ class WebexBot(WebexWebsocketClient):
                                                                                    message=message_without_command,
                                                                                    teams_message=teams_message,
                                                                                    activity=activity)
-            self.do_reply(pre_execute_reply, room_id, user_email, pre_execute_reply_one_to_one, is_one_on_one_space)
+            self.do_reply(pre_execute_reply, room_id, user_email, pre_execute_reply_one_to_one, is_one_on_one_space, thread_parent_id)
             reply, reply_one_to_one = self.run_command_and_handle_bot_exceptions(command=command,
                                                                                  message=message_without_command,
                                                                                  teams_message=teams_message,
                                                                                  activity=activity)
+        log.info(f"Using thread id={thread_parent_id}")
+        return self.do_reply(reply, room_id, user_email, reply_one_to_one, is_one_on_one_space, thread_parent_id)
 
-        return self.do_reply(reply, room_id, user_email, reply_one_to_one, is_one_on_one_space)
-
-    def do_reply(self, reply, room_id, user_email, reply_one_to_one, is_one_on_one_space):
+    def do_reply(self, reply, room_id, user_email, reply_one_to_one, is_one_on_one_space, conv_target_id):
         # allow command handlers to craft their own Teams message
         if reply and isinstance(reply, Response):
             # If the Response lacks a roomId, set it to the incoming room
             if not reply.roomId:
                 reply.roomId = room_id
+            if not reply.parentId and conv_target_id:
+                reply.parentId = conv_target_id
             reply = reply.as_dict()
             self.teams.messages.create(**reply)
             reply = "ok"
@@ -297,6 +315,8 @@ class WebexBot(WebexWebsocketClient):
                 if isinstance(response, Response):
                     if not response.roomId:
                         response.roomId = room_id
+                    if not response.parentId and conv_target_id:
+                        response.parentId = conv_target_id
                     self.teams.messages.create(**response.as_dict())
                 else:
                     # Just a plain message
@@ -304,14 +324,16 @@ class WebexBot(WebexWebsocketClient):
                                                         room_id,
                                                         reply_one_to_one,
                                                         is_one_on_one_space,
-                                                        response)
+                                                        response,
+                                                        conv_target_id)
             reply = "ok"
         elif reply:
             self.send_message_to_room_or_person(user_email,
                                                 room_id,
                                                 reply_one_to_one,
                                                 is_one_on_one_space,
-                                                reply)
+                                                reply,
+                                                conv_target_id)
         return reply
 
     def send_message_to_room_or_person(self,
@@ -319,17 +341,20 @@ class WebexBot(WebexWebsocketClient):
                                        room_id,
                                        reply_one_to_one,
                                        is_one_on_one_space,
-                                       reply):
+                                       reply,
+                                       conv_target_id):
         default_move_to_one_to_one_heads_up = \
             quote_info(f"{user_email} I've messaged you 1-1. Please reply to me there.")
         if reply_one_to_one:
             if not is_one_on_one_space:
                 self.teams.messages.create(roomId=room_id,
-                                           markdown=default_move_to_one_to_one_heads_up)
+                                           markdown=default_move_to_one_to_one_heads_up,
+                                           parentId=conv_target_id)
             self.teams.messages.create(toPersonEmail=user_email,
-                                       markdown=reply)
+                                       markdown=reply,
+                                       parentId=conv_target_id)
         else:
-            self.teams.messages.create(roomId=room_id, markdown=reply)
+            self.teams.messages.create(roomId=room_id, markdown=reply, parentId=conv_target_id)
 
     def run_pre_card_load_reply(self, command, message, teams_message, activity):
         """
