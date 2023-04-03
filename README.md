@@ -17,7 +17,15 @@ inside a LAN. This package instead uses a websocket to receive messages from the
 * Restrict bot to certain users or domains.
 * Uses the [webexteamssdk][2] package to send back replies from the bot.
 
-## Getting started
+## 🚀 Getting started
+
+---
+
+### ✨ Sample Project
+
+You can find a sample project, using OpenAI/ChatGPT with this library here: https://github.com/fbradyirl/openai_bot
+
+----
 
 **Only Python 3.9 is tested at this time.**
 
@@ -305,6 +313,10 @@ and off you go!
 ### 0.3.3 (2022-06-07)
 
 * Update [webexteamssdk][2] to latest release.
+
+### 0.3.4 (2022-11-01)
+
+* Auto re-connect on websockets.exceptions.ConnectionClosedOK
 
 [1]: https://github.com/aaugustin/websockets
 
