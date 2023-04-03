@@ -318,6 +318,11 @@ and off you go!
 
 * Auto re-connect on websockets.exceptions.ConnectionClosedOK
 
+### 0.4.0 (2023-April-03)
+
+* Bot will reply in response to the original message via the thread ID. This is not always possible in the case of a
+  card action response due to some server side issue.
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk

@@ -49,7 +49,13 @@ class HelpCommand(Command):
             items=[image],
             width=1,
         )
-        actions, hint_texts = self.build_actions_and_hints()
+
+        log.info(f"build help card activity: {activity}")
+        thread_parent_id = None
+        if 'parent' not in activity:
+            thread_parent_id = activity['id']
+
+        actions, hint_texts = self.build_actions_and_hints(thread_parent_id)
 
         card = AdaptiveCard(
             body=[ColumnSet(columns=[header_column, header_image_column]),
@@ -60,7 +66,7 @@ class HelpCommand(Command):
 
         return response_from_adaptive_card(adaptive_card=card)
 
-    def build_actions_and_hints(self):
+    def build_actions_and_hints(self, thread_parent_id):
         # help_card = HELP_CARD_CONTENT
         help_actions = []
         hint_texts = []
@@ -73,7 +79,8 @@ class HelpCommand(Command):
                 if command.help_message and command.command_keyword != HELP_COMMAND_KEYWORD:
                     action = Submit(
                         title=f"{command.help_message}",
-                        data={COMMAND_KEYWORD_KEY: command.command_keyword}
+                        data={COMMAND_KEYWORD_KEY: command.command_keyword,
+                              'thread_parent_id': thread_parent_id},
                     )
                     help_actions.append(action)
 
