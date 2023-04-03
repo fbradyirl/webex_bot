@@ -6,7 +6,6 @@ import backoff
 import coloredlogs
 import requests
 import webexteamssdk
-from webexteamssdk import ApiError
 
 from webex_bot.commands.echo import EchoCommand
 from webex_bot.commands.help import HelpCommand
@@ -250,7 +249,7 @@ class WebexBot(WebexWebsocketClient):
         message_without_command = WebexBot.get_message_passed_to_command(command.command_keyword, raw_message)
         thread_parent_id = None
 
-        if hasattr(teams_message,"inputs") and teams_message.inputs.get("thread_parent_id"):
+        if hasattr(teams_message, "inputs") and teams_message.inputs.get("thread_parent_id"):
             thread_parent_id = teams_message.inputs.get("thread_parent_id")
         elif 'parent' in activity:
             log.info(f"activity: {activity}")
@@ -260,6 +259,9 @@ class WebexBot(WebexWebsocketClient):
             else:
                 # Some bug where message cannot be sent back in response to cardAction in thread.
                 # Must reply outside of the thread in this case.
+                log.warning(f"There is a server side bug where message cannot be sent back in "
+                            f"response to cardAction inside a thread. "
+                            f"Must reply outside of the thread in this case.: {activity}")
                 thread_parent_id = None
         else:
             thread_parent_id = activity['id']
