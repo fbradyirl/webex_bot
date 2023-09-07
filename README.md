@@ -323,6 +323,10 @@ and off you go!
 * Bot will reply in response to the original message via the thread ID. This is not always possible in the case of a
   card action response due to some server side issue.
 
+### 0.4.1 (2023-Sept-07)
+
+* Always ensure there is a thread ID in the Activity before accessing it
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk

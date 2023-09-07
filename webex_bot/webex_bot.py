@@ -263,8 +263,10 @@ class WebexBot(WebexWebsocketClient):
                             f"response to cardAction inside a thread. "
                             f"Must reply outside of the thread in this case.: {activity}")
                 thread_parent_id = None
-        else:
+        elif 'id' in activity:
             thread_parent_id = activity['id']
+        else:
+            log.info(f"There is no activity id (thread ID) for this request.")
 
         if command.delete_previous_message and hasattr(teams_message, 'messageId'):
             previous_message_id = teams_message.messageId
