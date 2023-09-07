@@ -266,7 +266,7 @@ class WebexBot(WebexWebsocketClient):
         elif 'id' in activity:
             thread_parent_id = activity['id']
         else:
-            log.info(f"There is no activity id (thread ID) for this request.")
+            log.info("There is no activity id (thread ID) for this request.")
 
         if command.delete_previous_message and hasattr(teams_message, 'messageId'):
             previous_message_id = teams_message.messageId
