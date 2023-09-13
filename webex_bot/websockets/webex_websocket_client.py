@@ -134,6 +134,14 @@ class WebexWebsocketClient(object):
         logger.debug(f"self.device_info: {self.device_info}")
         return resp
 
+
+    def stop(self):
+      def terminate():
+          raise SystemExit()
+
+      asyncio.get_event_loop().create_task(terminate())
+
+
     def run(self):
         if self.device_info is None:
             if self._get_device_info() is None:
