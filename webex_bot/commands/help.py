@@ -14,7 +14,7 @@ HELP_COMMAND_KEYWORD = "help"
 
 class HelpCommand(Command):
 
-    def __init__(self, bot_name, bot_help_subtitle, bot_help_image):
+    def __init__(self, bot_name, bot_help_subtitle, bot_help_image, bot_help_image_size = ImageSize.SMALL):
         self.commands = None
         super().__init__(
             command_keyword=HELP_COMMAND_KEYWORD,
@@ -25,6 +25,7 @@ class HelpCommand(Command):
         self.bot_name = bot_name
         self.bot_help_subtitle = bot_help_subtitle
         self.bot_help_image = bot_help_image
+        self.bot_help_image_size = bot_help_image_size
 
     def execute(self, message, attachment_actions, activity):
         pass
@@ -42,7 +43,7 @@ class HelpCommand(Command):
 
         image = Image(
             url=self.bot_help_image,
-            size=ImageSize.SMALL)
+            size=self.bot_help_image_size)
 
         header_column = Column(items=[heading, subtitle], width=2)
         header_image_column = Column(
