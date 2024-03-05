@@ -33,6 +33,10 @@ You can find a sample project, using OpenAI/ChatGPT with this library here: http
 
 `pip install webex_bot`
 
+If you need optional proxy support, use this command instead:
+
+`pip install webex_bot[proxy]`
+
 2. On the Webex Developer portal, create a new [bot token][3] and expose it as an environment variable.
 
 ```sh
