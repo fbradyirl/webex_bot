@@ -187,7 +187,7 @@ class WebexBot(WebexWebsocketClient):
         :return:
         """
         user_email = teams_message.personEmail
-        raw_message = teams_message.text
+        raw_message = teams_message.text or ""
         is_one_on_one_space = 'ONE_ON_ONE' in activity['target']['tags']
 
         if activity['actor']['type'] != 'PERSON':
