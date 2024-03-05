@@ -50,7 +50,7 @@ class WebexWebsocketClient(object):
         """
         if msg['data']['eventType'] == 'conversation.activity':
             activity = msg['data']['activity']
-            if activity['verb'] == 'post':
+            if activity['verb'] in ["post", "share"]:
                 logger.debug(f"activity={activity}")
 
                 message_base_64_id = self._get_base64_message_id(activity)
@@ -83,10 +83,10 @@ class WebexWebsocketClient(object):
         @return: base 64 message id
         """
         activity_id = activity['id']
-        logger.debug(f"activity verb=post. message id={activity_id}")
+        logger.debug(f"activity verb={activity['verb']}. message id={activity_id}")
         conversation_url = activity['target']['url']
         conv_target_id = activity['target']['id']
-        verb = "messages" if activity['verb'] == "post" else "attachment/actions"
+        verb = "messages" if activity['verb'] in ["post", "share"] else "attachment/actions"
         conversation_message_url = conversation_url.replace(f"conversations/{conv_target_id}",
                                                             f"{verb}/{activity_id}")
         headers = {"Authorization": f"Bearer {self.access_token}"}
