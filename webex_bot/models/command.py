@@ -11,7 +11,7 @@ class Command(ABC):
 
     def __init__(self, command_keyword=None, chained_commands=[], card=None, help_message=None,
                  delete_previous_message=False,
-                 card_callback_keyword=None, approved_rooms=None):
+                 card_callback_keyword=None, approved_rooms=None, admin_command=None):
         """
         Create a new bot command.
 
@@ -45,6 +45,7 @@ class Command(ABC):
         self.delete_previous_message = delete_previous_message
         self.approved_rooms = approved_rooms
         self.chained_commands = chained_commands
+        self.admin_command = admin_command
 
         # Now, if this card has a Action.Submit action, let's read the callback keyword,
         # or if it doesnt exist, add it.

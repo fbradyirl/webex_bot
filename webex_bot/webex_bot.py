@@ -29,6 +29,7 @@ class WebexBot(WebexWebsocketClient):
                  approved_users=[],
                  approved_domains=[],
                  approved_rooms=[],
+                 approved_admins=[],
                  device_url=DEFAULT_DEVICE_URL,
                  include_demo_commands=False,
                  bot_name="Webex Bot",
@@ -74,6 +75,7 @@ class WebexBot(WebexWebsocketClient):
         self.approved_users = approved_users
         self.approved_domains = approved_domains
         self.approved_rooms = approved_rooms
+        self.approved_admins = approved_admins
         # Set default help message
         self.help_message = "Hello!  I understand the following commands:  \n"
         self.approval_parameters_check()
@@ -146,6 +148,16 @@ class WebexBot(WebexWebsocketClient):
         if not user_approved:
             log.warning(f"{user_email} is not approved to interact at this time. Ignoring.")
         return user_approved
+
+    def check_user_admin(self, user_email, approved_admins):
+        is_an_admin = False
+
+        if approved_admins is None:
+            is_an_admin = False
+        elif user_email in approved_admins:
+            is_an_admin = True
+
+        return is_an_admin
 
     def is_user_member_of_room(self, user_email, approved_rooms):
         is_user_member = False
@@ -242,6 +254,10 @@ class WebexBot(WebexWebsocketClient):
                 if not self.check_user_approved(user_email=user_email, approved_rooms=command.approved_rooms):
                     log.info(f"{user_email} is not allowed to run command: '{command.command_keyword}'")
                     return
+
+            if command.admin_command and not self.check_user_admin(user_email=user_email,approved_admins=command.approved_admins):
+                log.info(f"{user_email} is not allowed to run command: '{command.command_keyword}' as it is an admin command")
+                return
 
         # Build the reply to the user
         reply = ""
