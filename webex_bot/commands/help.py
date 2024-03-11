@@ -76,17 +76,19 @@ class HelpCommand(Command):
             # Sort list by keyword
             sorted_commands_list = sorted(self.commands, key=lambda command: (
                 command.command_keyword is not None, command.command_keyword))
+
             for command in sorted_commands_list:
-                if command.help_message and command.command_keyword != HELP_COMMAND_KEYWORD:
-                    action = Submit(
-                        title=f"{command.help_message}",
-                        data={COMMAND_KEYWORD_KEY: command.command_keyword,
-                              'thread_parent_id': thread_parent_id},
-                    )
-                    help_actions.append(action)
+                if not command.admin_command:
+                    if command.help_message and command.command_keyword != HELP_COMMAND_KEYWORD:
+                        action = Submit(
+                            title=f"{command.help_message}",
+                            data={COMMAND_KEYWORD_KEY: command.command_keyword,
+                                  'thread_parent_id': thread_parent_id},
+                        )
+                        help_actions.append(action)
 
-                    hint = Fact(title=command.command_keyword,
-                                value=command.help_message)
+                        hint = Fact(title=command.command_keyword,
+                                    value=command.help_message)
 
-                    hint_texts.append(hint)
+                        hint_texts.append(hint)
         return help_actions, hint_texts
