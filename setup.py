@@ -13,6 +13,10 @@ setup_requirements = ["pytest-runner"]
 
 test_requirements = ["pytest>=3"]
 
+extras_requirements = {
+    "proxy": ["websockets_proxy>=0.1.1"]
+}
+
 setup(
     author="Finbarr Brady",
     author_email="finbarr.brady@gmail.com",
@@ -26,6 +30,7 @@ setup(
         "Programming Language :: Python :: 3.9",
     ],
     description="Python package for a Webex Bot based on websockets.",
+    extras_require=extras_requirements,
     install_requires=requirements,
     license="MIT license",
     long_description=readme,

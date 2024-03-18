@@ -32,7 +32,8 @@ class WebexBot(WebexWebsocketClient):
                  device_url=DEFAULT_DEVICE_URL,
                  include_demo_commands=False,
                  bot_name="Webex Bot",
-                 bot_help_subtitle="Here are my available commands. Click one to begin."):
+                 bot_help_subtitle="Here are my available commands. Click one to begin.",
+                 proxies=None):
         """
         Initialise WebexBot.
 
@@ -44,6 +45,7 @@ class WebexBot(WebexWebsocketClient):
         @param include_demo_commands: If True, any demo commands will be included.
         @param bot_name: Your custom name for the bot.
         @param bot_help_subtitle: Text to show in the help card.
+        @param proxies: Dictionary of proxies for connections.
         """
 
         log.info("Registering bot with Webex cloud")
@@ -51,7 +53,8 @@ class WebexBot(WebexWebsocketClient):
                                       teams_bot_token,
                                       on_message=self.process_incoming_message,
                                       on_card_action=self.process_incoming_card_action,
-                                      device_url=device_url)
+                                      device_url=device_url,
+                                      proxies=proxies)
 
         # A dictionary of commands this bot listens to
         # Each key in the dictionary is a command, with associated help
