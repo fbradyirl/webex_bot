@@ -335,6 +335,10 @@ and off you go!
 * feat(20231212): add help image size parameter (#46)
 * update websockets to 11.0.3 (#43)
 
+### 0.4.7 (2024-Apr-24)
+
+* Fix for help_command syntax issue
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk

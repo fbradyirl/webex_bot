@@ -60,24 +60,22 @@ class WebexBot(WebexWebsocketClient):
                                       on_card_action=self.process_incoming_card_action,
                                       device_url=device_url)
 
-        # A dictionary of commands this bot listens to
-        # Each key in the dictionary is a command, with associated help
-        # text and callback function
-        # By default supports 2 command, echo and help
-
         if help_command is None:
             self.help_command = HelpCommand(
                 bot_name=bot_name,
                 bot_help_subtitle=bot_help_subtitle,
                 bot_help_image=self.teams.people.me().avatar)
-            self.help_command.commands = self.commands
-            # Set default help message
-            self.help_message = "Hello!  I understand the following commands:  \n"
         else:
             self.help_command = help_command
+
+        # A dictionary of commands this bot listens to
+        # Each key in the dictionary is a command, with associated help
+        # text and callback function
+        # By default supports 2 command, echo and help
         self.commands = {
             self.help_command
         }
+
         if include_demo_commands:
             self.add_command(EchoCommand())
 
