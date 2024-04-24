@@ -30,6 +30,7 @@ ssl_context.load_verify_locations(certifi.where())
 
 MAX_BACKOFF_TIME = 240
 
+
 class WebexWebsocketClient(object):
     def __init__(self,
                  access_token,
@@ -114,7 +115,7 @@ class WebexWebsocketClient(object):
         logger.debug(f"activity verb={activity['verb']}. message id={activity_id}")
         conversation_url = activity['target']['url']
         conv_target_id = activity['target']['id']
-        verb = "messages" if activity['verb'] in ["post","update"] else "attachment/actions"
+        verb = "messages" if activity['verb'] in ["post", "update"] else "attachment/actions"
         if activity['verb'] == "update" and self.share_id is not None:
             activity_id = self.share_id
             self.share_id = None
@@ -166,13 +167,11 @@ class WebexWebsocketClient(object):
         logger.debug(f"self.device_info: {self.device_info}")
         return resp
 
-
     def stop(self):
-      def terminate():
-          raise SystemExit()
+        def terminate():
+            raise SystemExit()
 
-      asyncio.get_event_loop().create_task(terminate())
-
+        asyncio.get_event_loop().create_task(terminate())
 
     def run(self):
         if self.device_info is None:
