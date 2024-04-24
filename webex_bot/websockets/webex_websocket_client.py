@@ -42,17 +42,44 @@ class WebexWebsocketClient(object):
         self.on_message = on_message
         self.on_card_action = on_card_action
         self.websocket = None
+        self.share_id = None
 
     def _process_incoming_websocket_message(self, msg):
         """
         Handle websocket data.
         :param msg: The raw websocket message
         """
+        logger.info(f"msg['data'] = {msg['data']}")
         if msg['data']['eventType'] == 'conversation.activity':
             activity = msg['data']['activity']
             if activity['verb'] == 'post':
                 logger.debug(f"activity={activity}")
 
+                message_base_64_id = self._get_base64_message_id(activity)
+                webex_message = self.teams.messages.get(message_base_64_id)
+                logger.debug(f"webex_message from message_base_64_id: {webex_message}")
+                if self.on_message:
+                    # ack message first
+                    self._ack_message(message_base_64_id)
+                    # Now process it with the handler
+                    self.on_message(teams_message=webex_message, activity=activity)
+            elif activity['verb'] == 'share':
+                logger.debug(f"activity={activity}")
+                self.share_id = activity['id']
+                return
+            elif activity['verb'] == 'update':
+                logger.debug(f"activity={activity}")
+
+                object = activity['object']
+                if object['objectType'] == 'content' and object['contentCategory'] == 'documents':
+                    if 'files' in object.keys():
+                        for item in object['files']['items']:
+                            if not item['malwareQuarantineState'] == 'safe':
+                                return
+                    else:
+                        return
+                else:
+                    return
                 message_base_64_id = self._get_base64_message_id(activity)
                 webex_message = self.teams.messages.get(message_base_64_id)
                 logger.debug(f"webex_message from message_base_64_id: {webex_message}")
@@ -83,10 +110,14 @@ class WebexWebsocketClient(object):
         @return: base 64 message id
         """
         activity_id = activity['id']
-        logger.debug(f"activity verb=post. message id={activity_id}")
+        logger.debug(f"activity verb={activity['verb']}. message id={activity_id}")
         conversation_url = activity['target']['url']
         conv_target_id = activity['target']['id']
-        verb = "messages" if activity['verb'] == "post" else "attachment/actions"
+        verb = "messages" if activity['verb'] in ["post","update"] else "attachment/actions"
+        if activity['verb'] == "update" and self.share_id is not None:
+            activity_id = self.share_id
+            self.share_id = None
+        logger.debug(f"activity_id={activity_id}")
         conversation_message_url = conversation_url.replace(f"conversations/{conv_target_id}",
                                                             f"{verb}/{activity_id}")
         headers = {"Authorization": f"Bearer {self.access_token}"}
