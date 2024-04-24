@@ -7,6 +7,8 @@ from setuptools import setup, find_packages
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
+# For latest unreleased version use
+# `webexteamssdk@ git+https://github.com/WebexCommunity/WebexPythonSDK.git`
 requirements = ['webexteamssdk==1.6.1', 'coloredlogs', 'websockets==10.2', 'backoff']
 
 setup_requirements = ['pytest-runner', ]
