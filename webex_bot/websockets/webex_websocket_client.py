@@ -28,6 +28,7 @@ DEVICE_DATA = {
 ssl_context = ssl.create_default_context()
 ssl_context.load_verify_locations(certifi.where())
 
+MAX_BACKOFF_TIME = 240
 
 class WebexWebsocketClient(object):
     def __init__(self,
@@ -190,10 +191,10 @@ class WebexWebsocketClient(object):
                 logger.warning(
                     f"An exception occurred while processing message. Ignoring. {messageProcessingException}")
 
-        @backoff.on_exception(backoff.expo, websockets.ConnectionClosedError)
-        @backoff.on_exception(backoff.expo, websockets.ConnectionClosedOK)
-        @backoff.on_exception(backoff.expo, websockets.ConnectionClosed)
-        @backoff.on_exception(backoff.expo, socket.gaierror)
+        @backoff.on_exception(backoff.expo, websockets.ConnectionClosedError, max_time=MAX_BACKOFF_TIME)
+        @backoff.on_exception(backoff.expo, websockets.ConnectionClosedOK, max_time=MAX_BACKOFF_TIME)
+        @backoff.on_exception(backoff.expo, websockets.ConnectionClosed, max_time=MAX_BACKOFF_TIME)
+        @backoff.on_exception(backoff.expo, socket.gaierror, max_time=MAX_BACKOFF_TIME)
         async def _connect_and_listen():
             ws_url = self.device_info['webSocketUrl']
             logger.info(f"Opening websocket connection to {ws_url}")
