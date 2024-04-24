@@ -327,7 +327,7 @@ and off you go!
 
 * Always ensure there is a thread ID in the Activity before accessing it
 
-### 0.4.3 (2024-Apr-24)
+### 0.4.4 (2024-Apr-24)
 
 * Add max backoff time (#55)
 * Attached files. Help, threading and log level overrides. (#54)
