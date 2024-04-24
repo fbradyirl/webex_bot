@@ -40,6 +40,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/fbradyirl/webex_bot",
-    version="0.4.4",
+    version="version='0.4.5'",
     zip_safe=False,
 )
