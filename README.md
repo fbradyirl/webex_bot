@@ -327,6 +327,14 @@ and off you go!
 
 * Always ensure there is a thread ID in the Activity before accessing it
 
+### 0.4.2 (2024-Apr-24)
+
+* Add max backoff time (#55)
+* Attached files. Help, threading and log level overrides. (#54)
+* add stop() call to gracefully exit the bot (#42)
+* feat(20231212): add help image size parameter (#46)
+* update websockets to 11.0.3 (#43)
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
