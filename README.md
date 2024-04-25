@@ -331,7 +331,7 @@ and off you go!
 
 * ❌ Bad release. Please do not use this one as there is a startup issue with it.
 
-### 0.4.7 (2024-Apr-24)
+### 0.5.0 (2024-Apr-25)
 
 * Add max backoff time (#55)
 * Attached files. Help, threading and log level overrides. (#54)
@@ -340,9 +340,6 @@ and off you go!
 * update websockets to 11.0.3 (#43)
 * Fix for help_command syntax issue
 
-### 0.5.0 (2024-Apr-25)
-
-* Fix for help_command missing commands.
 
 [1]: https://github.com/aaugustin/websockets
 
