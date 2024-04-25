@@ -11,6 +11,12 @@ import requests
 import websockets
 from webexteamssdk import WebexTeamsAPI
 
+try:
+    from websockets_proxy import Proxy, proxy_connect
+except ImportError:
+    Proxy = None
+    proxy_connect = None
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_DEVICE_URL = "https://wdm-a.wbx2.com/wdm/api/v1"
@@ -36,15 +42,22 @@ class WebexWebsocketClient(object):
                  access_token,
                  device_url=DEFAULT_DEVICE_URL,
                  on_message=None,
-                 on_card_action=None):
+                 on_card_action=None,
+                 proxies=None):
         self.access_token = access_token
-        self.teams = WebexTeamsAPI(access_token=access_token)
+        self.teams = WebexTeamsAPI(access_token=access_token, proxies=proxies)
         self.device_url = device_url
         self.device_info = None
         self.on_message = on_message
         self.on_card_action = on_card_action
+        self.proxies = proxies
         self.websocket = None
         self.share_id = None
+
+        if self.proxies and "wss" in self.proxies:
+            # Connecting wss:// through a proxy
+            if proxy_connect is None:
+                raise ImportError("Failed to load libraries for proxy, maybe forgot [proxy] option during installation.")
 
     def _process_incoming_websocket_message(self, msg):
         """
@@ -124,7 +137,8 @@ class WebexWebsocketClient(object):
                                                             f"{verb}/{activity_id}")
         headers = {"Authorization": f"Bearer {self.access_token}"}
         conversation_message = requests.get(conversation_message_url,
-                                            headers=headers).json()
+                                            headers=headers,
+                                            proxies=self.proxies).json()
         logger.debug(f"conversation_message={conversation_message}")
         return conversation_message['id']
 
@@ -197,7 +211,16 @@ class WebexWebsocketClient(object):
         async def _connect_and_listen():
             ws_url = self.device_info['webSocketUrl']
             logger.info(f"Opening websocket connection to {ws_url}")
-            async with websockets.connect(ws_url, ssl=ssl_context) as _websocket:
+
+            if self.proxies and "wss" in self.proxies:
+                logger.info(f"Using proxy for websocket connection: {self.proxies['wss']}")
+                proxy = Proxy.from_url(self.proxies["wss"])
+                connect = proxy_connect(ws_url, ssl=ssl_context, proxy=proxy)
+            else:
+                logger.debug(f"Not using proxy for websocket connection.")
+                connect = websockets.connect(ws_url, ssl=ssl_context)
+
+            async with connect as _websocket:
                 self.websocket = _websocket
                 logger.info("WebSocket Opened.")
                 msg = {'id': str(uuid.uuid4()),
