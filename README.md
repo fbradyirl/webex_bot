@@ -329,14 +329,15 @@ and off you go!
 
 ### 0.4.6 (2024-Apr-24)
 
+* ❌ Bad release. Please do not use this one as there is a startup issue with it.
+
+### 0.4.7 (2024-Apr-24)
+
 * Add max backoff time (#55)
 * Attached files. Help, threading and log level overrides. (#54)
 * add stop() call to gracefully exit the bot (#42)
 * feat(20231212): add help image size parameter (#46)
 * update websockets to 11.0.3 (#43)
-
-### 0.4.7 (2024-Apr-24)
-
 * Fix for help_command syntax issue
 
 ### 0.4.8 (2024-Apr-25)
