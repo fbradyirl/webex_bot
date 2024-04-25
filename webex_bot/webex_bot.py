@@ -31,7 +31,8 @@ class WebexBot(WebexWebsocketClient):
                  bot_help_subtitle="Here are my available commands. Click one to begin.",
                  threads=True,
                  help_command=None,
-                 log_level="INFO"):
+                 log_level="INFO",
+                 proxies=None):
         """
         Initialise WebexBot.
 
@@ -46,7 +47,7 @@ class WebexBot(WebexWebsocketClient):
         @param threads: If True, respond to msg by creating a thread.
         @param help_command: If None, use internal HelpCommand, otherwise override.
         @param log_level: Set loggin level.
-
+        @param proxies: Dictionary of proxies for connections.
         """
 
         coloredlogs.install(level=os.getenv("LOG_LEVEL", log_level),
@@ -58,7 +59,8 @@ class WebexBot(WebexWebsocketClient):
                                       teams_bot_token,
                                       on_message=self.process_incoming_message,
                                       on_card_action=self.process_incoming_card_action,
-                                      device_url=device_url)
+                                      device_url=device_url,
+                                      proxies=proxies)
 
         if help_command is None:
             self.help_command = HelpCommand(
