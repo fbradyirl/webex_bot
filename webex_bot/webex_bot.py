@@ -79,6 +79,8 @@ class WebexBot(WebexWebsocketClient):
         if include_demo_commands:
             self.add_command(EchoCommand())
 
+        self.help_command.commands = self.commands
+
         self.card_callback_commands = {}
         self.approved_users = approved_users
         self.approved_domains = approved_domains
