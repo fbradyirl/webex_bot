@@ -54,8 +54,8 @@ class WebexWebsocketClient(object):
         self.websocket = None
         self.share_id = None
 
-        if self.proxies:
-            # Connecting through a proxy
+        if self.proxies and "wss" in self.proxies:
+            # Connecting wss:// through a proxy
             if proxy_connect is None:
                 raise ImportError("Failed to load libraries for proxy, maybe forgot [proxy] option during installation.")
 
@@ -215,10 +215,6 @@ class WebexWebsocketClient(object):
             if self.proxies and "wss" in self.proxies:
                 logger.info(f"Using proxy for websocket connection: {self.proxies['wss']}")
                 proxy = Proxy.from_url(self.proxies["wss"])
-                connect = proxy_connect(ws_url, ssl=ssl_context, proxy=proxy)
-            elif self.proxies and "https" in self.proxies:
-                logger.info(f"Using proxy for websocket connection: {self.proxies['https']}")
-                proxy = Proxy.from_url(self.proxies["https"])
                 connect = proxy_connect(ws_url, ssl=ssl_context, proxy=proxy)
             else:
                 logger.debug(f"Not using proxy for websocket connection.")
