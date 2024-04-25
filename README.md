@@ -339,6 +339,10 @@ and off you go!
 
 * Fix for help_command syntax issue
 
+### 0.4.8 (2024-Apr-25)
+
+* Fix for help_command missing commands.
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
