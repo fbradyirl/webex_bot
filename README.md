@@ -340,7 +340,7 @@ and off you go!
 * update websockets to 11.0.3 (#43)
 * Fix for help_command syntax issue
 
-### 0.4.8 (2024-Apr-25)
+### 0.5.0 (2024-Apr-25)
 
 * Fix for help_command missing commands.
 
