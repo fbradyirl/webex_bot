@@ -4,6 +4,7 @@ from webex_bot.commands.echo import EchoCommand
 from webex_bot.webex_bot import WebexBot
 
 # (Optional) Proxy configuration
+# Supports https or wss proxy, wss prioritized. 
 proxies = {
     'https': 'http://proxy.esl.example.com:80',
     'wss': 'socks5://proxy.esl.example.com:1080'
