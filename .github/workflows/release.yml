@@ -1,3 +1,14 @@
+changelog:
+  categories:
+    - title: 🏕 Features
+      labels:
+        - '*'
+      exclude:
+        labels:
+          - dependencies
+    - title: 👒 Dependencies
+      labels:
+        - dependencies
 on:
     push:
         # Sequence of patterns matched against refs/tags
