@@ -56,7 +56,7 @@ from webex_bot.commands.echo import EchoCommand
 from webex_bot.webex_bot import WebexBot
 
 # (Optional) Proxy configuration
-# Supports https or wss proxy, wss prioritized. 
+# Supports https or wss proxy, wss prioritized.
 proxies = {
     'https': 'http://proxy.esl.example.com:80',
     'wss': 'socks5://proxy.esl.example.com:1080'
@@ -345,13 +345,16 @@ and off you go!
 
 ### 0.5.0 (2024-Apr-25)
 
-* Add max backoff time (#55)
-* Attached files. Help, threading and log level overrides. (#54)
-* add stop() call to gracefully exit the bot (#42)
-* feat(20231212): add help image size parameter (#46)
-* update websockets to 11.0.3 (#43)
+* Add max backoff time ([#55][pr55])
+* Attached files. Help, threading and log level overrides. ([#54][pr54])
+* add stop() call to gracefully exit the bot ([#42][pr42])
+* feat(20231212): add help image size parameter ([#46][pr46])
+* update websockets to 11.0.3 ([#43][pr43])
 * Fix for help_command syntax issue
 
+### 0.5.1 (2024-Apr-25)
+
+* Add Proxy Support. ([#56][pr56])
 
 [1]: https://github.com/aaugustin/websockets
 
@@ -366,6 +369,18 @@ and off you go!
 [6]: https://github.com/CiscoSE/pyadaptivecards
 
 [7]: https://eurl.io/#TeBLqZjLs
+
+[pr43]: https://github.com/fbradyirl/webex_bot/pull/43
+
+[pr46]: https://github.com/fbradyirl/webex_bot/pull/46
+
+[pr42]: https://github.com/fbradyirl/webex_bot/pull/42
+
+[pr54]: https://github.com/fbradyirl/webex_bot/pull/54
+
+[pr55]: https://github.com/fbradyirl/webex_bot/pull/55
+
+[pr56]: https://github.com/fbradyirl/webex_bot/pull/56
 
 [i1]: https://github.com/fbradyirl/webex_bot/issues/1
 
