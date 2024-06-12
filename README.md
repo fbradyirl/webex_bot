@@ -2,6 +2,14 @@
 
 [![Pypi](https://img.shields.io/pypi/v/webex_bot.svg)](https://pypi.python.org/pypi/webex_bot) [![Build Status](https://github.com/fbradyirl/webex_bot/workflows/Python%20package/badge.svg)](https://github.com/fbradyirl/webex_bot/actions)
 
+> [!IMPORTANT]  
+> This repository is only sporadically maintained.  Breaking API changes will be maintained on a best efforts basis.
+>
+> Collaborators are welcome, as are PRs for enhancements.
+>
+> Bug reports unrelated to API changes may not get the attention you want. 
+
+
 By using this module, you can create a [Webex Teams][5] messaging bot quickly in just a couple of lines of code.
 
 This module does not require you to set up an ngrok tunnel to receive incoming messages when behind a firewall or
