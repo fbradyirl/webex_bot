@@ -234,7 +234,7 @@ class WebexBot(WebexWebsocketClient):
 
             if not is_card_callback_command and c.command_keyword:
                 log.debug(f"c.command_keyword: {c.command_keyword}")
-                if user_command.find(c.command_keyword) != -1:
+                if user_command.strip().split()[0].lower() == c.command_keyword.lower():
                     command = c
                     # If a command was found, stop looking for others
                     break
