@@ -16,10 +16,6 @@ from webex_bot.models.response import Response
 from webex_bot.websockets.webex_websocket_client import WebexWebsocketClient, DEFAULT_DEVICE_URL
 
 log = logging.getLogger(__name__)
-coloredlogs.install(level=os.getenv("LOG_LEVEL", "INFO"),
-                    fmt='%(asctime)s  [%(levelname)s]  '
-                        '[%(module)s.%(name)s.%(funcName)'
-                        's]:%(lineno)s %(message)s')
 
 
 class WebexBot(WebexWebsocketClient):
@@ -32,7 +28,11 @@ class WebexBot(WebexWebsocketClient):
                  device_url=DEFAULT_DEVICE_URL,
                  include_demo_commands=False,
                  bot_name="Webex Bot",
-                 bot_help_subtitle="Here are my available commands. Click one to begin."):
+                 bot_help_subtitle="Here are my available commands. Click one to begin.",
+                 threads=True,
+                 help_command=None,
+                 log_level="INFO",
+                 proxies=None):
         """
         Initialise WebexBot.
 
@@ -44,27 +44,40 @@ class WebexBot(WebexWebsocketClient):
         @param include_demo_commands: If True, any demo commands will be included.
         @param bot_name: Your custom name for the bot.
         @param bot_help_subtitle: Text to show in the help card.
+        @param threads: If True, respond to msg by creating a thread.
+        @param help_command: If None, use internal HelpCommand, otherwise override.
+        @param log_level: Set loggin level.
+        @param proxies: Dictionary of proxies for connections.
         """
 
+        coloredlogs.install(level=os.getenv("LOG_LEVEL", log_level),
+                            fmt='%(asctime)s  [%(levelname)s]  '
+                                '[%(module)s.%(name)s.%(funcName)'
+                                's]:%(lineno)s %(message)s')
         log.info("Registering bot with Webex cloud")
         WebexWebsocketClient.__init__(self,
                                       teams_bot_token,
                                       on_message=self.process_incoming_message,
                                       on_card_action=self.process_incoming_card_action,
-                                      device_url=device_url)
+                                      device_url=device_url,
+                                      proxies=proxies)
+
+        if help_command is None:
+            self.help_command = HelpCommand(
+                bot_name=bot_name,
+                bot_help_subtitle=bot_help_subtitle,
+                bot_help_image=self.teams.people.me().avatar)
+        else:
+            self.help_command = help_command
 
         # A dictionary of commands this bot listens to
         # Each key in the dictionary is a command, with associated help
         # text and callback function
         # By default supports 2 command, echo and help
-
-        self.help_command = HelpCommand(
-            bot_name=bot_name,
-            bot_help_subtitle=bot_help_subtitle,
-            bot_help_image=self.teams.people.me().avatar)
         self.commands = {
             self.help_command
         }
+
         if include_demo_commands:
             self.add_command(EchoCommand())
 
@@ -74,11 +87,10 @@ class WebexBot(WebexWebsocketClient):
         self.approved_users = approved_users
         self.approved_domains = approved_domains
         self.approved_rooms = approved_rooms
-        # Set default help message
-        self.help_message = "Hello!  I understand the following commands:  \n"
         self.approval_parameters_check()
         self.bot_display_name = ""
         self.get_me_info()
+        self.threads = threads
 
     @backoff.on_exception(backoff.expo, requests.exceptions.ConnectionError)
     def get_me_info(self):
@@ -307,7 +319,7 @@ class WebexBot(WebexWebsocketClient):
             # If the Response lacks a roomId, set it to the incoming room
             if not reply.roomId:
                 reply.roomId = room_id
-            if not reply.parentId and conv_target_id:
+            if not reply.parentId and conv_target_id and self.threads:
                 reply.parentId = conv_target_id
             reply = reply.as_dict()
             self.teams.messages.create(**reply)
@@ -351,14 +363,25 @@ class WebexBot(WebexWebsocketClient):
             quote_info(f"{user_email} I've messaged you 1-1. Please reply to me there.")
         if reply_one_to_one:
             if not is_one_on_one_space:
-                self.teams.messages.create(roomId=room_id,
-                                           markdown=default_move_to_one_to_one_heads_up,
+                if self.threads:
+                    self.teams.messages.create(roomId=room_id,
+                                               markdown=default_move_to_one_to_one_heads_up,
+                                               parentId=conv_target_id)
+                else:
+                    self.teams.messages.create(roomId=room_id,
+                                               markdown=default_move_to_one_to_one_heads_up)
+            if self.threads:
+                self.teams.messages.create(toPersonEmail=user_email,
+                                           markdown=reply,
                                            parentId=conv_target_id)
-            self.teams.messages.create(toPersonEmail=user_email,
-                                       markdown=reply,
-                                       parentId=conv_target_id)
+            else:
+                self.teams.messages.create(toPersonEmail=user_email,
+                                           markdown=reply)
         else:
-            self.teams.messages.create(roomId=room_id, markdown=reply, parentId=conv_target_id)
+            if self.threads:
+                self.teams.messages.create(roomId=room_id, markdown=reply, parentId=conv_target_id)
+            else:
+                self.teams.messages.create(roomId=room_id, markdown=reply)
 
     def run_pre_card_load_reply(self, command, message, teams_message, activity):
         """

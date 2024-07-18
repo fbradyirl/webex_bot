@@ -14,7 +14,8 @@ HELP_COMMAND_KEYWORD = "help"
 
 class HelpCommand(Command):
 
-    def __init__(self, bot_name, bot_help_subtitle, bot_help_image, bot_help_image_size = ImageSize.SMALL):
+
+    def __init__(self, bot_name, bot_help_subtitle, bot_help_image, bot_help_image_size=ImageSize.SMALL):
         self.commands = None
         super().__init__(
             command_keyword=HELP_COMMAND_KEYWORD,

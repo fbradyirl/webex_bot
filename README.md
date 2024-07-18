@@ -2,6 +2,14 @@
 
 [![Pypi](https://img.shields.io/pypi/v/webex_bot.svg)](https://pypi.python.org/pypi/webex_bot) [![Build Status](https://github.com/fbradyirl/webex_bot/workflows/Python%20package/badge.svg)](https://github.com/fbradyirl/webex_bot/actions)
 
+> [!IMPORTANT]  
+> This repository is only sporadically maintained.  Breaking API changes will be maintained on a best efforts basis.
+>
+> Collaborators are welcome, as are PRs for enhancements.
+>
+> Bug reports unrelated to API changes may not get the attention you want. 
+
+
 By using this module, you can create a [Webex Teams][5] messaging bot quickly in just a couple of lines of code.
 
 This module does not require you to set up an ngrok tunnel to receive incoming messages when behind a firewall or
@@ -33,6 +41,10 @@ You can find a sample project, using OpenAI/ChatGPT with this library here: http
 
 `pip install webex_bot`
 
+If you need optional proxy support, use this command instead:
+
+`pip install webex_bot[proxy]`
+
 2. On the Webex Developer portal, create a new [bot token][3] and expose it as an environment variable.
 
 ```sh
@@ -51,11 +63,19 @@ import os
 from webex_bot.commands.echo import EchoCommand
 from webex_bot.webex_bot import WebexBot
 
+# (Optional) Proxy configuration
+# Supports https or wss proxy, wss prioritized.
+proxies = {
+    'https': 'http://proxy.esl.example.com:80',
+    'wss': 'socks5://proxy.esl.example.com:1080'
+}
+
 # Create a Bot Object
 bot = WebexBot(teams_bot_token=os.getenv("WEBEX_TEAMS_ACCESS_TOKEN"),
                approved_rooms=['06586d8d-6aad-4201-9a69-0bf9eeb5766e'],
                bot_name="My Teams Ops Bot",
-               include_demo_commands=True)
+               include_demo_commands=True,
+               proxies=proxies)
 
 # Add new commands for the bot to listen out for.
 bot.add_command(EchoCommand())
@@ -327,6 +347,23 @@ and off you go!
 
 * Always ensure there is a thread ID in the Activity before accessing it
 
+### 0.4.6 (2024-Apr-24)
+
+* ❌ Bad release. Please do not use this one as there is a startup issue with it.
+
+### 0.5.0 (2024-Apr-25)
+
+* Add max backoff time ([#55][pr55])
+* Attached files. Help, threading and log level overrides. ([#54][pr54])
+* add stop() call to gracefully exit the bot ([#42][pr42])
+* feat(20231212): add help image size parameter ([#46][pr46])
+* update websockets to 11.0.3 ([#43][pr43])
+* Fix for help_command syntax issue
+
+### 0.5.1 (2024-Apr-25)
+
+* Add Proxy Support. ([#56][pr56])
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
@@ -340,6 +377,18 @@ and off you go!
 [6]: https://github.com/CiscoSE/pyadaptivecards
 
 [7]: https://eurl.io/#TeBLqZjLs
+
+[pr43]: https://github.com/fbradyirl/webex_bot/pull/43
+
+[pr46]: https://github.com/fbradyirl/webex_bot/pull/46
+
+[pr42]: https://github.com/fbradyirl/webex_bot/pull/42
+
+[pr54]: https://github.com/fbradyirl/webex_bot/pull/54
+
+[pr55]: https://github.com/fbradyirl/webex_bot/pull/55
+
+[pr56]: https://github.com/fbradyirl/webex_bot/pull/56
 
 [i1]: https://github.com/fbradyirl/webex_bot/issues/1
 
