@@ -2,12 +2,12 @@
 
 [![Pypi](https://img.shields.io/pypi/v/webex_bot.svg)](https://pypi.python.org/pypi/webex_bot) [![Build Status](https://github.com/fbradyirl/webex_bot/workflows/Python%20package/badge.svg)](https://github.com/fbradyirl/webex_bot/actions)
 
-> [!IMPORTANT]  
-> This repository is only sporadically maintained.  Breaking API changes will be maintained on a best efforts basis.
+> [!IMPORTANT]
+> This repository is only sporadically maintained. Breaking API changes will be maintained on a best efforts basis.
 >
 > Collaborators are welcome, as are PRs for enhancements.
 >
-> Bug reports unrelated to API changes may not get the attention you want. 
+> Bug reports unrelated to API changes may not get the attention you want.
 
 
 By using this module, you can create a [Webex Teams][5] messaging bot quickly in just a couple of lines of code.
@@ -364,6 +364,10 @@ and off you go!
 
 * Add Proxy Support. ([#56][pr56])
 
+### 0.5.2 (2024-Aug-21)
+
+* Introduce exact_command_keyword_match feature ([#59][pr59])
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/CiscoDevNet/webexteamssdk
@@ -389,6 +393,8 @@ and off you go!
 [pr55]: https://github.com/fbradyirl/webex_bot/pull/55
 
 [pr56]: https://github.com/fbradyirl/webex_bot/pull/56
+
+[pr59]: https://github.com/fbradyirl/webex_bot/pull/59
 
 [i1]: https://github.com/fbradyirl/webex_bot/issues/1
 
