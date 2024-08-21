@@ -9,8 +9,9 @@ COMMAND_KEYWORD_KEY = "command_keyword"
 
 class Command(ABC):
 
-    def __init__(self, command_keyword=None, chained_commands=[], card=None, help_message=None,
-                 delete_previous_message=False,
+    def __init__(self, command_keyword=None, exact_command_keyword_match=False,
+                 chained_commands=[], card=None,
+                 help_message=None, delete_previous_message=False,
                  card_callback_keyword=None, approved_rooms=None):
         """
         Create a new bot command.
@@ -25,6 +26,7 @@ class Command(ABC):
                     )
 
         @param command_keyword: (optional) Text indicating a phrase to invoke this card.
+        @param exact_command_keyword_match: If True, there will be an exact command_keyword match performed. If False, then a sub-string match will be performed. Default: False. 
         @param chained_commands: (optional) List of other commands related
         to this command. This allows multiple related cards to be added at once.
         @param card: (deprecated) A dict representation of the JSON card.
@@ -37,6 +39,7 @@ class Command(ABC):
         @param approved_rooms: If defined, only members of these spaces will be allowed to run this command. Default: None (everyone)
         """
         self.command_keyword = command_keyword
+        self.exact_command_keyword_match = exact_command_keyword_match
         self.help_message = help_message
         self.card = card
         self.pre_card_callback = self.execute

@@ -234,10 +234,21 @@ class WebexBot(WebexWebsocketClient):
 
             if not is_card_callback_command and c.command_keyword:
                 log.debug(f"c.command_keyword: {c.command_keyword}")
-                if user_command.find(c.command_keyword) != -1:
-                    command = c
-                    # If a command was found, stop looking for others
-                    break
+                log.info(f"exact_command_keyword_match: {c.exact_command_keyword_match}")
+                log.info(f"user_command: {user_command}")
+                log.info(f"command_keyword: {c.command_keyword}")
+                if c.exact_command_keyword_match: # Check if the "exact_command_keyword_match" flag is set to True
+                    if user_command == c.command_keyword:
+                        log.info("Exact match found!")
+                        command=c
+                        # If a command was found, stop looking for others
+                        break
+                else: # Enter here if the "exact_command_keyword_match" flag is set to False
+                    if user_command.find(c.command_keyword) != -1:
+                        log.info("Sub-string match found!")
+                        command = c
+                        # If a command was found, stop looking for others
+                        break
             else:
                 log.debug(f"card_callback_keyword: {c.card_callback_keyword}")
                 if user_command == c.command_keyword or user_command == c.card_callback_keyword:
