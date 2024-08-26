@@ -1,6 +1,6 @@
 import json
 
-from webexteamssdk.models.cards import AdaptiveCard
+from webexpythonsdk.models.cards import AdaptiveCard
 
 
 def response_from_adaptive_card(adaptive_card: AdaptiveCard):

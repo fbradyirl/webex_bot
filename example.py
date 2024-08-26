@@ -11,7 +11,7 @@ proxies = {
 }
 
 # Create a Bot Object
-bot = WebexBot(teams_bot_token=os.getenv("WEBEX_TEAMS_ACCESS_TOKEN"),
+bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN"),
                approved_rooms=['06586d8d-6aad-4201-9a69-0bf9eeb5766e'],
                bot_name="My Teams Ops Bot",
                include_demo_commands=True,
