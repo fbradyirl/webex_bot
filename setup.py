@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-requirements = ['webexpythonsdk', 'coloredlogs', 'websockets==11.0.3', 'backoff']
+requirements = ['webexpythonsdk==2.0.1', 'coloredlogs', 'websockets==11.0.3', 'backoff']
 
 setup_requirements = ['pytest-runner', ]
 
