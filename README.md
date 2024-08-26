@@ -370,7 +370,7 @@ and off you go!
 
 [1]: https://github.com/aaugustin/websockets
 
-[2]: https://github.com/CiscoDevNet/webexpythonsdk
+[2]: https://github.com/WebexCommunity/WebexPythonSDK
 
 [3]: https://developer.webex.com/docs/bots
 
