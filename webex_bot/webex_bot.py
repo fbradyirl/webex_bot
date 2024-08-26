@@ -5,7 +5,7 @@ import os
 import backoff
 import coloredlogs
 import requests
-import webexteamssdk
+import webexpythonsdk
 
 from webex_bot.commands.echo import EchoCommand
 from webex_bot.commands.help import HelpCommand
@@ -95,7 +95,7 @@ class WebexBot(WebexWebsocketClient):
     @backoff.on_exception(backoff.expo, requests.exceptions.ConnectionError)
     def get_me_info(self):
         """
-        Fetch me info from webexteamssdk
+        Fetch me info from webexpythonsdk
         """
         me = self.teams.people.me()
         self.bot_display_name = me.displayName
@@ -168,7 +168,7 @@ class WebexBot(WebexWebsocketClient):
                 for member in room_members:
                     if member.personEmail == user_email:
                         is_user_member = True
-            except webexteamssdk.exceptions.ApiError as apie:
+            except webexpythonsdk.exceptions.ApiError as apie:
                 log.warn(f"API error: {apie}")
         return is_user_member
 

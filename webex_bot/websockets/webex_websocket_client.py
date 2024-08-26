@@ -9,7 +9,7 @@ import backoff
 import certifi
 import requests
 import websockets
-from webexteamssdk import WebexTeamsAPI
+from webexpythonsdk import WebexAPI
 
 try:
     from websockets_proxy import Proxy, proxy_connect
@@ -45,7 +45,7 @@ class WebexWebsocketClient(object):
                  on_card_action=None,
                  proxies=None):
         self.access_token = access_token
-        self.teams = WebexTeamsAPI(access_token=access_token, proxies=proxies)
+        self.teams = WebexAPI(access_token=access_token, proxies=proxies)
         self.device_url = device_url
         self.device_info = None
         self.on_message = on_message
