@@ -23,7 +23,7 @@ inside a LAN. This package instead uses a websocket to receive messages from the
 * Allows for single or multi-post responses. This is useful if you want to reply with a lot of data, but it won't all
   fit in a single response.
 * Restrict bot to certain users or domains.
-* Uses the [webexteamssdk][2] package to send back replies from the bot.
+* Uses the [webexpythonsdk][2] package to send back replies from the bot.
 
 ## 🚀 Getting started
 
@@ -48,7 +48,7 @@ If you need optional proxy support, use this command instead:
 2. On the Webex Developer portal, create a new [bot token][3] and expose it as an environment variable.
 
 ```sh
-export WEBEX_TEAMS_ACCESS_TOKEN=<your bots token>
+export WEBEX_ACCESS_TOKEN=<your bots token>
 ```
 
 3. Run your script:
@@ -71,7 +71,7 @@ proxies = {
 }
 
 # Create a Bot Object
-bot = WebexBot(teams_bot_token=os.getenv("WEBEX_TEAMS_ACCESS_TOKEN"),
+bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN"),
                approved_rooms=['06586d8d-6aad-4201-9a69-0bf9eeb5766e'],
                bot_name="My Teams Ops Bot",
                include_demo_commands=True,
@@ -89,9 +89,9 @@ where EchoCommand is defined as:
 ```python
 import logging
 
-from webexteamssdk.models.cards import Colors, TextBlock, FontWeight, FontSize, Column, AdaptiveCard, ColumnSet, \
+from webexpythonsdk.models.cards import Colors, TextBlock, FontWeight, FontSize, Column, AdaptiveCard, ColumnSet, \
     Text, Image, HorizontalAlignment
-from webexteamssdk.models.cards.actions import Submit
+from webexpythonsdk.models.cards.actions import Submit
 
 from webex_bot.formatting import quote_info
 from webex_bot.models.command import Command
@@ -370,7 +370,7 @@ and off you go!
 
 [1]: https://github.com/aaugustin/websockets
 
-[2]: https://github.com/CiscoDevNet/webexteamssdk
+[2]: https://github.com/WebexCommunity/WebexPythonSDK
 
 [3]: https://developer.webex.com/docs/bots
 

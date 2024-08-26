@@ -1,8 +1,8 @@
 import logging
 
-from webexteamssdk.models.cards import Colors, TextBlock, FontWeight, FontSize, Column, AdaptiveCard, ColumnSet, \
+from webexpythonsdk.models.cards import Colors, TextBlock, FontWeight, FontSize, Column, AdaptiveCard, ColumnSet, \
     Text, Image, HorizontalAlignment
-from webexteamssdk.models.cards.actions import Submit
+from webexpythonsdk.models.cards.actions import Submit
 
 from webex_bot.formatting import quote_info
 from webex_bot.models.command import Command
