@@ -183,7 +183,7 @@ and off you go!
 
 # Help
 
-* If you are a Cisco employee, and find this useful, consider sending me a [Connected Recognition][8] 🙂
+* If you are a Cisco employee, and find this useful, consider sending me a [Connected Recognition][8] (cec: `fibrady`) 🙂
 * Also, join the [discussion space here][7].
 * Alternatively, open an issue or PR with a question on usage.
 
