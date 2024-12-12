@@ -183,7 +183,8 @@ and off you go!
 
 # Help
 
-* If you are a Cisco employee, you can join the [discussion space here][7].
+* If you are a Cisco employee, and find this useful, consider sending me a [Connected Recognition][8] 🙂
+* Also, join the [discussion space here][7].
 * Alternatively, open an issue or PR with a question on usage.
 
 # History
@@ -381,6 +382,8 @@ and off you go!
 [6]: https://github.com/CiscoSE/pyadaptivecards
 
 [7]: https://eurl.io/#TeBLqZjLs
+
+[8]: https://www.globoforce.net/microsites/t/awards/Redeem?client=cisco&setCAG=true
 
 [pr43]: https://github.com/fbradyirl/webex_bot/pull/43
 
