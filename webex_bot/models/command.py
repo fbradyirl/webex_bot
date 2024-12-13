@@ -30,7 +30,7 @@ class Command(ABC):
         @param chained_commands: (optional) List of other commands related
         to this command. This allows multiple related cards to be added at once.
         @param card: (deprecated) A dict representation of the JSON card.
-        Prefer to use cards built in code using the webexteamssdk.models.cards classes
+        Prefer to use cards built in code using the webexpythonsdk.models.cards classes
         (see https://github.com/fbradyirl/webex_bot/blob/main/webex_bot/commands/echo.py for example)
         @param help_message: Short description of this command.
         @param delete_previous_message: If True, the card which invoked this command will be deleted. (default False)
@@ -55,7 +55,7 @@ class Command(ABC):
         if card is not None:
             log.warning(f"[{command_keyword}]. Using a card dict is now deprecated. "
                         f"Switch to use adaptive cards built in code "
-                        "using the webexteamssdk.models.cards classes (see "
+                        "using the webexpythonsdk.models.cards classes (see "
                         "https://github.com/fbradyirl/webex_bot/blob/main/webex_bot/commands/echo.py for example)")
             if 'actions' in card:
                 if len(card['actions']) > 0:
