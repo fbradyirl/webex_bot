@@ -97,7 +97,7 @@ from webex_bot.formatting import quote_info
 from webex_bot.models.command import Command
 from webex_bot.models.response import response_from_adaptive_card
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("webex_bot")
 
 
 class EchoCommand(Command):

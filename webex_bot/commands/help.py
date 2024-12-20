@@ -7,7 +7,7 @@ from webexteamssdk.models.cards.actions import Submit
 from webex_bot.models.command import Command, COMMAND_KEYWORD_KEY
 from webex_bot.models.response import response_from_adaptive_card
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("webex_bot")
 
 HELP_COMMAND_KEYWORD = "help"
 

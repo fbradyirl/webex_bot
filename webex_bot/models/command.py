@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("webex_bot")
 
 CALLBACK_KEYWORD_KEY = 'callback_keyword'
 COMMAND_KEYWORD_KEY = "command_keyword"

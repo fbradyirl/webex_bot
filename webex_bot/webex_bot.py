@@ -15,7 +15,7 @@ from webex_bot.models.command import CALLBACK_KEYWORD_KEY, Command, COMMAND_KEYW
 from webex_bot.models.response import Response
 from webex_bot.websockets.webex_websocket_client import WebexWebsocketClient, DEFAULT_DEVICE_URL
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("webex_bot")
 
 
 class WebexBot(WebexWebsocketClient):
@@ -32,6 +32,9 @@ class WebexBot(WebexWebsocketClient):
                  threads=True,
                  help_command=None,
                  log_level="INFO",
+                 generate_log_file=False,
+                 log_file_name=None,
+                 log_file_log_level="DEBUG",
                  proxies=None):
         """
         Initialise WebexBot.
@@ -46,14 +49,39 @@ class WebexBot(WebexWebsocketClient):
         @param bot_help_subtitle: Text to show in the help card.
         @param threads: If True, respond to msg by creating a thread.
         @param help_command: If None, use internal HelpCommand, otherwise override.
-        @param log_level: Set loggin level.
+        @param log_level: Set logging level.
+        @param generate_log_file: If True, create a log file.
+        @param log_file_name: Set name for the log file.
+        @param log_file_log_level: Set logging level for the log file.
         @param proxies: Dictionary of proxies for connections.
         """
 
         coloredlogs.install(level=os.getenv("LOG_LEVEL", log_level),
-                            fmt='%(asctime)s  [%(levelname)s]  '
-                                '[%(module)s.%(name)s.%(funcName)'
-                                's]:%(lineno)s %(message)s')
+                            fmt="%(asctime)s  [%(levelname)s]  "
+                                "[%(module)s.%(name)s.%(funcName)"
+                                "s()]:%(lineno)s  [PID:%(process)d, "
+                                "TID:%(thread)d]  %(message)s",
+                            datefmt="%Y-%m-%d %H:%M:%S.%f")
+
+        if generate_log_file:
+            # Default to DEBUG if invalid
+            log_file_log_level = getattr(logging,
+                                         log_file_log_level,
+                                         logging.DEBUG)
+            # Specify log file location
+            handler = logging.FileHandler(log_file_name)
+            # Define Formatter
+            formatter = logging.Formatter(fmt="%(asctime)s.%(msecs)03d  "
+                                              "[%(levelname)s]  [%(module)s."
+                                              "%(name)s.%(funcName)s()]:"
+                                              "%(lineno)s  [PID:%(process)d, "
+                                              "TID:%(thread)d]  %(message)s",
+                                          datefmt="%Y-%m-%dT%H:%M:%S")
+            handler.setFormatter(formatter)
+            log.addHandler(handler)
+            log.setLevel(log_file_log_level)
+            log.info("Initiated logging mechanism...")
+
         log.info("Registering bot with Webex cloud")
         WebexWebsocketClient.__init__(self,
                                       teams_bot_token,

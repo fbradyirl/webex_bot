@@ -17,7 +17,7 @@ except ImportError:
     Proxy = None
     proxy_connect = None
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("webex_bot")
 
 DEFAULT_DEVICE_URL = "https://wdm-a.wbx2.com/wdm/api/v1"
 
@@ -183,6 +183,9 @@ class WebexWebsocketClient(object):
 
     def stop(self):
         def terminate():
+            logger.info("Stopping the bot...")
+            logger.info("Logging mechanism will be shutdown!")
+            logging.shutdown()
             raise SystemExit()
 
         asyncio.get_event_loop().create_task(terminate())
