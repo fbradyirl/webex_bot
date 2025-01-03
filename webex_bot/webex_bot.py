@@ -76,7 +76,7 @@ class WebexBot(WebexWebsocketClient):
                                               "%(name)s.%(funcName)s()]:"
                                               "%(lineno)s  [PID:%(process)d, "
                                               "TID:%(thread)d]  %(message)s",
-                                          datefmt="%Y-%m-%dT%H:%M:%S")
+                                          datefmt="%Y-%m-%d %H:%M:%S")
             handler.setFormatter(formatter)
             log.addHandler(handler)
             log.setLevel(log_file_log_level)
