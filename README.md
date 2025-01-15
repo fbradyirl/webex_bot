@@ -35,7 +35,7 @@ You can find a sample project, using OpenAI/ChatGPT with this library here: http
 
 ----
 
-**Only Python 3.9 is tested at this time.**
+**Only Python 3.13 is tested at this time.**
 
 1. Install this module from pypi:
 
@@ -376,7 +376,7 @@ and off you go!
 
 #### Breaking changes for the existing webex_bot based applications:
 
-* Supports is limited to only Python 3.10+ versions. webex_bot applications running on lower Python versions will have to adapt to this change in Python version requirement.
+* Support is limited to only Python 3.10+ versions. webex_bot applications running on lower Python versions will have to adapt to this change in Python version requirement.
 * Make the following code changes to your webex_bot application to adapt to ```webex_bot 0.6.0 version and upwards```.
 1. ***Mandatory step:*** Replace all imports from `webexteamssdk` to `webexpythonsdk`. For example:
 ```
