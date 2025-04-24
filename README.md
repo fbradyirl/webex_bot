@@ -369,15 +369,18 @@ and off you go!
 
 * Introduce exact_command_keyword_match feature ([#59][pr59])
 
-### 0.6.0 (2025-Jan-15)
+### 0.6.0 (2025-Apr-24)
 
 * Migrate from "webexteamssdk" library to "webexpythonsdk" library ([#62][pr62])
 * Updated webexpythonsdk library version ([#69][pr69])
+* Added support for generators ([#71][pr71])
 
 #### Breaking changes for the existing webex_bot based applications:
 
-* Support is limited to only Python 3.10+ versions. webex_bot applications running on lower Python versions will have to adapt to this change in Python version requirement.
+* Support is limited to only Python 3.10+ versions. webex_bot applications running on lower Python versions will have to
+  adapt to this change in Python version requirement.
 * Make the following code changes to your webex_bot application to adapt to ```webex_bot 0.6.0 version and upwards```.
+
 1. ***Mandatory step:*** Replace all imports from `webexteamssdk` to `webexpythonsdk`. For example:
 ```
 from webexteamssdk.models.cards import TextBlock
@@ -428,6 +431,8 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 [pr62]: https://github.com/fbradyirl/webex_bot/pull/62
 
 [pr69]: https://github.com/fbradyirl/webex_bot/pull/69
+
+[pr71]: https://github.com/fbradyirl/webex_bot/pull/71
 
 [i1]: https://github.com/fbradyirl/webex_bot/issues/1
 
