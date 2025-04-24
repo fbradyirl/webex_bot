@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-requirements = ['webexpythonsdk==2.0.2', 'coloredlogs', 'websockets==11.0.3', 'backoff']
+requirements = ['webexpythonsdk==2.0.4', 'coloredlogs', 'websockets==11.0.3', 'backoff']
 
 setup_requirements = ['pytest-runner', ]
 
@@ -20,14 +20,16 @@ extras_requirements = {
 setup(
     author="Finbarr Brady",
     author_email='finbarr@somemail.com',
-    python_requires='>=3.8',
+    python_requires='>=3.10',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
     ],
     description="Python package for a Webex Bot based on websockets.",
     extras_require=extras_requirements,

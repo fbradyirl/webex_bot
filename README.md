@@ -35,7 +35,7 @@ You can find a sample project, using OpenAI/ChatGPT with this library here: http
 
 ----
 
-**Only Python 3.9 is tested at this time.**
+**Only Python 3.13 is tested at this time.**
 
 1. Install this module from pypi:
 
@@ -369,6 +369,32 @@ and off you go!
 
 * Introduce exact_command_keyword_match feature ([#59][pr59])
 
+### 0.6.0 (2025-Jan-15)
+
+* Migrate from "webexteamssdk" library to "webexpythonsdk" library ([#62][pr62])
+* Updated webexpythonsdk library version ([#69][pr69])
+
+#### Breaking changes for the existing webex_bot based applications:
+
+* Support is limited to only Python 3.10+ versions. webex_bot applications running on lower Python versions will have to adapt to this change in Python version requirement.
+* Make the following code changes to your webex_bot application to adapt to ```webex_bot 0.6.0 version and upwards```.
+1. ***Mandatory step:*** Replace all imports from `webexteamssdk` to `webexpythonsdk`. For example:
+```
+from webexteamssdk.models.cards import TextBlock
+```
+to
+```
+from webexpythonsdk.models.cards import TextBlock\
+```
+2. ***This step is applicable only if you pass your Webex bot access token to webex_bot via environment variable:*** Change your Webex bot access token environment variable from `WEBEX_TEAMS_ACCESS_TOKEN` to `WEBEX_ACCESS_TOKEN`. Also, make the following code change in your webex_bot application:
+```
+bot = WebexBot(teams_bot_token=os.getenv("WEBEX_TEAMS_ACCESS_TOKEN")
+```
+to
+```
+bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
+```
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/WebexCommunity/WebexPythonSDK
@@ -398,6 +424,10 @@ and off you go!
 [pr56]: https://github.com/fbradyirl/webex_bot/pull/56
 
 [pr59]: https://github.com/fbradyirl/webex_bot/pull/59
+
+[pr62]: https://github.com/fbradyirl/webex_bot/pull/62
+
+[pr69]: https://github.com/fbradyirl/webex_bot/pull/69
 
 [i1]: https://github.com/fbradyirl/webex_bot/issues/1
 
