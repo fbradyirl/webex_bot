@@ -2,6 +2,7 @@
 import logging
 import os
 
+import types
 import backoff
 import coloredlogs
 import requests
@@ -336,7 +337,7 @@ class WebexBot(WebexWebsocketClient):
             self.teams.messages.create(**reply)
             reply = "ok"
         # Support returning a list of Responses
-        elif reply and isinstance(reply, list):
+        elif reply and (isinstance(reply, list) or isinstance(reply, types.GeneratorType)):
             for response in reply:
                 # Make sure is a Response
                 if isinstance(response, Response):
