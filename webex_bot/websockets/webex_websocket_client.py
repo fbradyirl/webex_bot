@@ -10,6 +10,7 @@ import certifi
 import requests
 import websockets
 from webexpythonsdk import WebexAPI
+from websockets.exceptions import InvalidStatusCode
 
 try:
     from websockets_proxy import Proxy, proxy_connect
@@ -193,6 +194,9 @@ class WebexWebsocketClient(object):
                 logger.error('could not get/create device info')
                 raise Exception("No WDM device info")
 
+        # Pull out URL now so we can log it on failure
+        ws_url = self.device_info.get('webSocketUrl')
+
         async def _websocket_recv():
             message = await self.websocket.recv()
             logger.debug("WebSocket Received Message(raw): %s\n" % message)
@@ -204,10 +208,17 @@ class WebexWebsocketClient(object):
                 logger.warning(
                     f"An exception occurred while processing message. Ignoring. {messageProcessingException}")
 
-        @backoff.on_exception(backoff.expo, websockets.ConnectionClosedError, max_time=MAX_BACKOFF_TIME)
-        @backoff.on_exception(backoff.expo, websockets.ConnectionClosedOK, max_time=MAX_BACKOFF_TIME)
-        @backoff.on_exception(backoff.expo, websockets.ConnectionClosed, max_time=MAX_BACKOFF_TIME)
-        @backoff.on_exception(backoff.expo, socket.gaierror, max_time=MAX_BACKOFF_TIME)
+        @backoff.on_exception(
+            backoff.expo,
+            (
+                websockets.ConnectionClosedError,
+                websockets.ConnectionClosedOK,
+                websockets.ConnectionClosed,
+                socket.gaierror,
+                InvalidStatusCode,
+            ),
+            max_time=MAX_BACKOFF_TIME
+        )
         async def _connect_and_listen():
             ws_url = self.device_info['webSocketUrl']
             logger.info(f"Opening websocket connection to {ws_url}")
@@ -237,6 +248,16 @@ class WebexWebsocketClient(object):
 
         try:
             asyncio.get_event_loop().run_until_complete(_connect_and_listen())
+        except InvalidStatusCode as e:
+            logger.error(f"WebSocket handshake to {ws_url} failed with status {e.status_code}")
+            if e.status_code == 404:
+                logger.info("Refreshing WDM device info and retrying...")
+                self._get_device_info(check_existing=False)
+                # update ws_url before retry
+                ws_url = self.device_info.get('webSocketUrl')
+                asyncio.get_event_loop().run_until_complete(_connect_and_listen())
+            else:
+                raise
         except Exception as runException:
             logger.error(f"runException: {runException}")
             if self._get_device_info(check_existing=False) is None:
