@@ -398,6 +398,12 @@ to
 bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 ```
 
+
+### 0.6.1 (2025-May-19)
+
+* Handle and retry on InvalidStatusCode in Websocket loop
+
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/WebexCommunity/WebexPythonSDK
