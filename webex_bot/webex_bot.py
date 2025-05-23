@@ -1,8 +1,8 @@
 """Main module."""
 import logging
 import os
-
 import types
+
 import backoff
 import coloredlogs
 import requests
@@ -14,7 +14,7 @@ from webex_bot.exceptions import BotException
 from webex_bot.formatting import quote_info
 from webex_bot.models.command import CALLBACK_KEYWORD_KEY, Command, COMMAND_KEYWORD_KEY
 from webex_bot.models.response import Response
-from webex_bot.websockets.webex_websocket_client import WebexWebsocketClient, DEFAULT_DEVICE_URL
+from webex_bot.websockets.webex_websocket_client import WebexWebsocketClient
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +26,6 @@ class WebexBot(WebexWebsocketClient):
                  approved_users=[],
                  approved_domains=[],
                  approved_rooms=[],
-                 device_url=DEFAULT_DEVICE_URL,
                  include_demo_commands=False,
                  bot_name="Webex Bot",
                  bot_help_subtitle="Here are my available commands. Click one to begin.",
@@ -60,7 +59,6 @@ class WebexBot(WebexWebsocketClient):
                                       teams_bot_token,
                                       on_message=self.process_incoming_message,
                                       on_card_action=self.process_incoming_card_action,
-                                      device_url=device_url,
                                       proxies=proxies)
 
         if help_command is None:

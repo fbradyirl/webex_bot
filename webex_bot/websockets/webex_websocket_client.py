@@ -20,7 +20,7 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_DEVICE_URL = "https://wdm-a.wbx2.com/wdm/api/v1"
+DEFAULT_U2C_URL = "https://u2c.wbx2.com/u2c/api/v1/catalog"
 
 DEVICE_DATA = {
     "deviceName": "pywebsocket-client",
@@ -41,14 +41,13 @@ MAX_BACKOFF_TIME = 240
 class WebexWebsocketClient(object):
     def __init__(self,
                  access_token,
-                 device_url=DEFAULT_DEVICE_URL,
                  on_message=None,
                  on_card_action=None,
                  proxies=None):
         self.access_token = access_token
         self.teams = WebexAPI(access_token=access_token, proxies=proxies)
-        self.device_url = device_url
         self.device_info = None
+        self.device_url = self._get_device_url()
         self.on_message = on_message
         self.on_card_action = on_card_action
         self.proxies = proxies
@@ -154,6 +153,25 @@ class WebexWebsocketClient(object):
                        'messageId': message_id}
         asyncio.run(self.websocket.send(json.dumps(ack_message)))
         logger.info(f"WebSocket ack message with id={message_id}. Complete.")
+
+    def _get_device_url(self):
+        headers = {}
+        headers["Authorization"] = 'Bearer ' + self.access_token
+
+        params = {"format": "hostmap"}
+        response = requests.get(DEFAULT_U2C_URL, headers=headers, params=params)
+
+        # check for 401 Unauthorized
+        if response.status_code == 401:
+            logger.error("Unauthorized access. Please check your access token.")
+            raise Exception("Unauthorized access. Please check your access token.")
+
+        data = response.json()
+
+        wdm_url = data["serviceLinks"].get("wdm")  # or whatever key your hostmap uses
+        logging.info(f"wdm url: {wdm_url}")
+        return wdm_url
+
 
     def _get_device_info(self, check_existing=True):
         """

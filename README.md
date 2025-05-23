@@ -403,6 +403,9 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 
 * Handle and retry on InvalidStatusCode in Websocket loop
 
+### 0.6.2 (2025-May-23)
+
+* Fix for [issue #48][i48] - Fix for `Commands not being received` issue.
 
 [1]: https://github.com/aaugustin/websockets
 
@@ -449,3 +452,5 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 [i13]: https://github.com/fbradyirl/webex_bot/issues/13
 
 [i20]: https://github.com/fbradyirl/webex_bot/issues/20
+
+[i48]: https://github.com/fbradyirl/webex_bot/issues/48
