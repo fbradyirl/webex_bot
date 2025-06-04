@@ -23,9 +23,9 @@ class WebexBot(WebexWebsocketClient):
 
     def __init__(self,
                  teams_bot_token,
-                 approved_users=[],
-                 approved_domains=[],
-                 approved_rooms=[],
+                 approved_users=None,
+                 approved_domains=None,
+                 approved_rooms=None,
                  include_demo_commands=False,
                  bot_name="Webex Bot",
                  bot_help_subtitle="Here are my available commands. Click one to begin.",
@@ -84,9 +84,9 @@ class WebexBot(WebexWebsocketClient):
         self.help_command.commands = self.commands
 
         self.card_callback_commands = {}
-        self.approved_users = approved_users
-        self.approved_domains = approved_domains
-        self.approved_rooms = approved_rooms
+        self.approved_users = approved_users if approved_users is not None else []
+        self.approved_domains = approved_domains if approved_domains is not None else []
+        self.approved_rooms = approved_rooms if approved_rooms is not None else []
         self.approval_parameters_check()
         self.bot_display_name = ""
         self.threads = threads

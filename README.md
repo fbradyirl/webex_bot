@@ -407,9 +407,10 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 
 * Fix for [issue #48][i48] - Fix for `Commands not being received` issue.
 
-### 1.0.2 (2025-Jun-04)
+### 1.0.3 (2025-Jun-04)
 
 * Add connection headers to requests.
+* Only call me people API once per run.
 
 [1]: https://github.com/aaugustin/websockets
 
