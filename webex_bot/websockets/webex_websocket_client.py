@@ -12,6 +12,8 @@ import websockets
 from webexpythonsdk import WebexAPI
 from websockets.exceptions import InvalidStatusCode
 
+from webex_bot import __version__
+
 try:
     from websockets_proxy import Proxy, proxy_connect
 except ImportError:
@@ -46,6 +48,11 @@ class WebexWebsocketClient(object):
                  proxies=None):
         self.access_token = access_token
         self.teams = WebexAPI(access_token=access_token, proxies=proxies)
+        self.tracking_id = f"webex-bot_{uuid.uuid4()}"
+        self.session = requests.Session()
+        self.session.headers = self._get_headers()
+        # log the tracking ID
+        logger.info(f"Tracking ID: {self.tracking_id}")
         self.device_info = None
         self.device_url = self._get_device_url()
         self.on_message = on_message
@@ -53,11 +60,19 @@ class WebexWebsocketClient(object):
         self.proxies = proxies
         self.websocket = None
         self.share_id = None
-
+        if self.proxies:
+            self.session.proxies = proxies
         if self.proxies:
             # Connecting through a proxy
             if proxy_connect is None:
                 raise ImportError("Failed to load libraries for proxy, maybe forgot [proxy] option during installation.")
+
+    def _get_headers(self):
+        return {
+            "Authorization": f"Bearer {self.access_token}",
+            "User-Agent": f"webex_bot/{__version__}",
+            "trackingid": self.tracking_id
+        }
 
     def _process_incoming_websocket_message(self, msg):
         """
@@ -135,10 +150,7 @@ class WebexWebsocketClient(object):
         logger.debug(f"activity_id={activity_id}")
         conversation_message_url = conversation_url.replace(f"conversations/{conv_target_id}",
                                                             f"{verb}/{activity_id}")
-        headers = {"Authorization": f"Bearer {self.access_token}"}
-        conversation_message = requests.get(conversation_message_url,
-                                            headers=headers,
-                                            proxies=self.proxies).json()
+        conversation_message = self.session.get(conversation_message_url).json()
         logger.debug(f"conversation_message={conversation_message}")
         return conversation_message['id']
 
@@ -155,11 +167,8 @@ class WebexWebsocketClient(object):
         logger.info(f"WebSocket ack message with id={message_id}. Complete.")
 
     def _get_device_url(self):
-        headers = {}
-        headers["Authorization"] = 'Bearer ' + self.access_token
-
         params = {"format": "hostmap"}
-        response = requests.get(DEFAULT_U2C_URL, headers=headers, params=params)
+        response = self.session.get(DEFAULT_U2C_URL, params=params)
 
         # check for 401 Unauthorized
         if response.status_code == 401:
@@ -182,8 +191,8 @@ class WebexWebsocketClient(object):
         if check_existing:
             logger.debug('Getting device list')
             try:
-                resp = self.teams._session.get(f"{self.device_url}/devices")
-                for device in resp['devices']:
+                resp = self.session.get(f"{self.device_url}/devices")
+                for device in resp.json()['devices']:
                     if device['name'] == DEVICE_DATA['name']:
                         self.device_info = device
                         logger.debug(f"device_info: {self.device_info}")
@@ -193,12 +202,12 @@ class WebexWebsocketClient(object):
 
             logger.info('Device does not exist, creating')
 
-        resp = self.teams._session.post(f"{self.device_url}/devices", json=DEVICE_DATA)
+        resp = self.session.post(f"{self.device_url}/devices", json=DEVICE_DATA)
         if resp is None:
             raise Exception("could not create WDM device")
-        self.device_info = resp
+        self.device_info = resp.json()
         logger.debug(f"self.device_info: {self.device_info}")
-        return resp
+        return self.device_info
 
     def stop(self):
         def terminate():
@@ -244,14 +253,14 @@ class WebexWebsocketClient(object):
             if self.proxies and "wss" in self.proxies:
                 logger.info(f"Using proxy for websocket connection: {self.proxies['wss']}")
                 proxy = Proxy.from_url(self.proxies["wss"])
-                connect = proxy_connect(ws_url, ssl=ssl_context, proxy=proxy)
+                connect = proxy_connect(ws_url, ssl=ssl_context, proxy=proxy, extra_headers=self._get_headers())
             elif self.proxies and "https" in self.proxies:
                 logger.info(f"Using proxy for websocket connection: {self.proxies['https']}")
                 proxy = Proxy.from_url(self.proxies["https"])
-                connect = proxy_connect(ws_url, ssl=ssl_context, proxy=proxy)
+                connect = proxy_connect(ws_url, ssl=ssl_context, proxy=proxy, extra_headers=self._get_headers())
             else:
                 logger.debug(f"Not using proxy for websocket connection.")
-                connect = websockets.connect(ws_url, ssl=ssl_context)
+                connect = websockets.connect(ws_url, ssl=ssl_context, extra_headers=self._get_headers())
 
             async with connect as _websocket:
                 self.websocket = _websocket
