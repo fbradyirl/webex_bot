@@ -51,6 +51,8 @@ class WebexWebsocketClient(object):
         self.tracking_id = f"webex-bot_{uuid.uuid4()}"
         self.session = requests.Session()
         self.session.headers = self._get_headers()
+        sdk_ua = self.teams._session.headers["User-Agent"]
+        self.teams._session.update_headers(self._get_headers(add_to_ua=f" ({sdk_ua})"))
         # log the tracking ID
         logger.info(f"Tracking ID: {self.tracking_id}")
         self.device_info = None
@@ -67,10 +69,11 @@ class WebexWebsocketClient(object):
             if proxy_connect is None:
                 raise ImportError("Failed to load libraries for proxy, maybe forgot [proxy] option during installation.")
 
-    def _get_headers(self):
+    def _get_headers(self, add_to_ua=''):
         return {
             "Authorization": f"Bearer {self.access_token}",
-            "User-Agent": f"webex_bot/{__version__}",
+            "Content-type": "application/json;charset=utf-8",
+            "User-Agent": f"webex_bot/{__version__}{add_to_ua}",
             "trackingid": self.tracking_id
         }
 
