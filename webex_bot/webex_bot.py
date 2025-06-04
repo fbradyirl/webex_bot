@@ -61,11 +61,12 @@ class WebexBot(WebexWebsocketClient):
                                       on_card_action=self.process_incoming_card_action,
                                       proxies=proxies)
 
+        me = self.get_me_info()
         if help_command is None:
             self.help_command = HelpCommand(
                 bot_name=bot_name,
                 bot_help_subtitle=bot_help_subtitle,
-                bot_help_image=self.teams.people.me().avatar)
+                bot_help_image=me.avatar)
         else:
             self.help_command = help_command
 
@@ -88,7 +89,6 @@ class WebexBot(WebexWebsocketClient):
         self.approved_rooms = approved_rooms
         self.approval_parameters_check()
         self.bot_display_name = ""
-        self.get_me_info()
         self.threads = threads
 
     @backoff.on_exception(backoff.expo, requests.exceptions.ConnectionError)
@@ -100,6 +100,7 @@ class WebexBot(WebexWebsocketClient):
         self.bot_display_name = me.displayName
         log.info(f"Running as {me.type} '{me.displayName}' with email {me.emails}")
         log.debug(f"Running as bot '{me}'")
+        return me
 
     def add_command(self, command_class: Command):
         """
