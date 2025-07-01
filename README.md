@@ -412,6 +412,11 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 * Add connection headers to requests.
 * Only call me people API once per run.
 
+### 1.0.4 (2025-Jul-01)
+
+* Add retry mechanism with backoff for websocket 404 errors
+*
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/WebexCommunity/WebexPythonSDK
