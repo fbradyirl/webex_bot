@@ -276,22 +276,47 @@ class WebexWebsocketClient(object):
                 while True:
                     await _websocket_recv()
 
-        try:
-            asyncio.get_event_loop().run_until_complete(_connect_and_listen())
-        except InvalidStatusCode as e:
-            logger.error(f"WebSocket handshake to {ws_url} failed with status {e.status_code}")
-            if e.status_code == 404:
-                logger.info("Refreshing WDM device info and retrying...")
-                self._get_device_info(check_existing=False)
-                # update ws_url before retry
-                ws_url = self.device_info.get('webSocketUrl')
+        # Track the number of consecutive 404 errors to prevent infinite loops
+        max_404_retries = 3
+        current_404_retries = 0
+        
+        while True:
+            try:
                 asyncio.get_event_loop().run_until_complete(_connect_and_listen())
-            else:
-                raise
-        except Exception as runException:
-            logger.error(f"runException: {runException}")
-            if self._get_device_info(check_existing=False) is None:
-                logger.error('could not create device info')
-                raise Exception("No WDM device info")
-            # trigger re-connect
-            asyncio.get_event_loop().run_until_complete(_connect_and_listen())
+                # If we get here, the connection was successful, so break out of the loop
+                break
+            except InvalidStatusCode as e:
+                logger.error(f"WebSocket handshake to {ws_url} failed with status {e.status_code}")
+                
+                if e.status_code == 404:
+                    current_404_retries += 1
+                    if current_404_retries >= max_404_retries:
+                        logger.error(f"Reached maximum retries ({max_404_retries}) for 404 errors. Giving up.")
+                        raise Exception(f"Unable to connect to WebSocket after {max_404_retries} attempts. Device registration may be invalid.")
+                    
+                    logger.info(f"Refreshing WDM device info and retrying... (Attempt {current_404_retries} of {max_404_retries})")
+                    # Force a new device registration
+                    self._get_device_info(check_existing=False)
+                    # Update ws_url with the new device info
+                    ws_url = self.device_info.get('webSocketUrl')
+                    
+                    # Add a delay before retrying to avoid hammering the server
+                    logger.info(f"Waiting 5 seconds before retry attempt {current_404_retries}...")
+                    asyncio.get_event_loop().run_until_complete(asyncio.sleep(5))
+                else:
+                    # For non-404 errors, just raise the exception
+                    raise
+            except Exception as runException:
+                logger.error(f"runException: {runException}")
+                
+                # Check if we can get device info
+                if self._get_device_info(check_existing=False) is None:
+                    logger.error('could not create device info')
+                    raise Exception("No WDM device info")
+                    
+                # Update the URL in case it changed
+                ws_url = self.device_info.get('webSocketUrl')
+                
+                # Wait a bit before reconnecting
+                logger.info("Waiting 5 seconds before attempting to reconnect...")
+                asyncio.get_event_loop().run_until_complete(asyncio.sleep(5))
