@@ -57,6 +57,7 @@ class WebexBot(WebexWebsocketClient):
         log.info("Registering bot with Webex cloud")
         WebexWebsocketClient.__init__(self,
                                       teams_bot_token,
+                                      bot_name,
                                       on_message=self.process_incoming_message,
                                       on_card_action=self.process_incoming_card_action,
                                       proxies=proxies)

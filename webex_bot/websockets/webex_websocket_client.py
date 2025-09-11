@@ -43,6 +43,7 @@ MAX_BACKOFF_TIME = 240
 class WebexWebsocketClient(object):
     def __init__(self,
                  access_token,
+                 bot_name,
                  on_message=None,
                  on_card_action=None,
                  proxies=None):
@@ -50,9 +51,10 @@ class WebexWebsocketClient(object):
         self.teams = WebexAPI(access_token=access_token, proxies=proxies)
         self.tracking_id = f"webex-bot_{uuid.uuid4()}"
         self.session = requests.Session()
-        self.session.headers = self._get_headers()
         sdk_ua = self.teams._session.headers["User-Agent"]
-        self.teams._session.update_headers(self._get_headers(add_to_ua=f" ({sdk_ua})"))
+        self.add_to_ua = f" '{bot_name}' ({sdk_ua})"
+        self.session.headers = self._get_headers()
+        self.teams._session.update_headers(self._get_headers())
         # log the tracking ID
         logger.info(f"Tracking ID: {self.tracking_id}")
         self.device_info = None
@@ -69,11 +71,11 @@ class WebexWebsocketClient(object):
             if proxy_connect is None:
                 raise ImportError("Failed to load libraries for proxy, maybe forgot [proxy] option during installation.")
 
-    def _get_headers(self, add_to_ua=''):
+    def _get_headers(self):
         return {
             "Authorization": f"Bearer {self.access_token}",
             "Content-type": "application/json;charset=utf-8",
-            "User-Agent": f"webex_bot/{__version__}{add_to_ua}",
+            "User-Agent": f"webex_bot/{__version__}{self.add_to_ua}",
             "trackingid": self.tracking_id
         }
 
@@ -279,7 +281,7 @@ class WebexWebsocketClient(object):
         # Track the number of consecutive 404 errors to prevent infinite loops
         max_404_retries = 3
         current_404_retries = 0
-        
+
         while True:
             try:
                 asyncio.get_event_loop().run_until_complete(_connect_and_listen())
@@ -287,19 +289,19 @@ class WebexWebsocketClient(object):
                 break
             except InvalidStatusCode as e:
                 logger.error(f"WebSocket handshake to {ws_url} failed with status {e.status_code}")
-                
+
                 if e.status_code == 404:
                     current_404_retries += 1
                     if current_404_retries >= max_404_retries:
                         logger.error(f"Reached maximum retries ({max_404_retries}) for 404 errors. Giving up.")
                         raise Exception(f"Unable to connect to WebSocket after {max_404_retries} attempts. Device registration may be invalid.")
-                    
+
                     logger.info(f"Refreshing WDM device info and retrying... (Attempt {current_404_retries} of {max_404_retries})")
                     # Force a new device registration
                     self._get_device_info(check_existing=False)
                     # Update ws_url with the new device info
                     ws_url = self.device_info.get('webSocketUrl')
-                    
+
                     # Add a delay before retrying to avoid hammering the server
                     logger.info(f"Waiting 5 seconds before retry attempt {current_404_retries}...")
                     asyncio.get_event_loop().run_until_complete(asyncio.sleep(5))
@@ -308,15 +310,15 @@ class WebexWebsocketClient(object):
                     raise
             except Exception as runException:
                 logger.error(f"runException: {runException}")
-                
+
                 # Check if we can get device info
                 if self._get_device_info(check_existing=False) is None:
                     logger.error('could not create device info')
                     raise Exception("No WDM device info")
-                    
+
                 # Update the URL in case it changed
                 ws_url = self.device_info.get('webSocketUrl')
-                
+
                 # Wait a bit before reconnecting
                 logger.info("Waiting 5 seconds before attempting to reconnect...")
                 asyncio.get_event_loop().run_until_complete(asyncio.sleep(5))

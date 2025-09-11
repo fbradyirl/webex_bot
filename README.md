@@ -415,7 +415,11 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 ### 1.0.4 (2025-Jul-01)
 
 * Add retry mechanism with backoff for websocket 404 errors
-*
+
+### 1.0.5 (2025-Sept-11)
+
+* Update UA
+
 
 [1]: https://github.com/aaugustin/websockets
 
