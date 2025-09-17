@@ -206,12 +206,13 @@ class WebexBot(WebexWebsocketClient):
         raw_message = teams_message.text
         is_one_on_one_space = 'ONE_ON_ONE' in activity['target']['tags']
 
-        if activity['actor']['type'] != 'PERSON' and not self.allow_bot_to_bot:
-            log.warning('Message is from a bot, ignoring')
-            return
-        else:
-            log.warning(
-                f"Message is from a bot and allow_bot_to_bot is {self.allow_bot_to_bot}. Be careful not to create a message loop!")
+        if activity['actor']['type'] != 'PERSON':
+            if not self.allow_bot_to_bot:
+                log.warning(f"Message is from a bot ({user_email}), ignoring")
+                return
+            else:
+                log.warning(
+                    f"Message is from a bot ({user_email}), and allow_bot_to_bot is {self.allow_bot_to_bot}. Be careful not to create a message loop!")
 
         # Log details on message
         log.info(f"Message from {user_email}: {teams_message}")
