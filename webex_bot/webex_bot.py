@@ -30,6 +30,7 @@ class WebexBot(WebexWebsocketClient):
                  bot_name="Webex Bot",
                  bot_help_subtitle="Here are my available commands. Click one to begin.",
                  threads=True,
+                 allow_bot_to_bot=False,
                  help_command=None,
                  log_level="INFO",
                  proxies=None):
@@ -41,10 +42,11 @@ class WebexBot(WebexWebsocketClient):
         @param approved_domains: List of domains which are allowed to chat to this bot.
         @param approved_rooms: List of rooms whose members are allowed to chat to this bot.
         @param device_url: WDM Url
-        @param include_demo_commands: If True, any demo commands will be included.
+        @param include_demo_commands: If True, any demo commands will be included. (default False)
         @param bot_name: Your custom name for the bot.
         @param bot_help_subtitle: Text to show in the help card.
-        @param threads: If True, respond to msg by creating a thread.
+        @param threads: If True, respond to msg by creating a thread. (default True)
+        @param allow_bot_to_bot: If True, incoming messages from other bots will be processed. Use with caution to avoid message loops. (default False)
         @param help_command: If None, use internal HelpCommand, otherwise override.
         @param log_level: Set loggin level.
         @param proxies: Dictionary of proxies for connections.
@@ -91,6 +93,7 @@ class WebexBot(WebexWebsocketClient):
         self.approval_parameters_check()
         self.bot_display_name = ""
         self.threads = threads
+        self.allow_bot_to_bot = allow_bot_to_bot
 
     @backoff.on_exception(backoff.expo, requests.exceptions.ConnectionError)
     def get_me_info(self):
@@ -203,9 +206,12 @@ class WebexBot(WebexWebsocketClient):
         raw_message = teams_message.text
         is_one_on_one_space = 'ONE_ON_ONE' in activity['target']['tags']
 
-        if activity['actor']['type'] != 'PERSON':
-            log.debug('message is from a bot, ignoring')
+        if activity['actor']['type'] != 'PERSON' and not self.allow_bot_to_bot:
+            log.warning('Message is from a bot, ignoring')
             return
+        else:
+            log.warning(
+                f"Message is from a bot and allow_bot_to_bot is {self.allow_bot_to_bot}. Be careful not to create a message loop!")
 
         # Log details on message
         log.info(f"Message from {user_email}: {teams_message}")
