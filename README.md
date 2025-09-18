@@ -420,7 +420,7 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 
 * Update UA
 
-### 1.0.7 (2025-Sept-17)
+### 1.0.8 (2025-Sept-18)
 
 * Allow flag to disable bot to bot check
 
