@@ -297,7 +297,7 @@ class WebexBot(WebexWebsocketClient):
                 log.warning(f"There is a server side bug where message cannot be sent back in "
                             f"response to cardAction inside a thread. "
                             f"Must reply outside of the thread in this case.: {activity}")
-                thread_parent_id = activity['target']['id']
+                thread_parent_id = None
         elif 'id' in activity:
             thread_parent_id = activity['id']
         else:
