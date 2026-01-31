@@ -80,10 +80,12 @@ Ready to contribute? Here's how to set up `webex_bot` for local development.
    tests, including testing other Python versions with tox::
 
     $ flake8 webex_bot tests
-    $ python setup.py test or pytest
+    $ pytest
     $ tox
 
-   To get flake8 and tox, just pip install them into your virtualenv.
+   To get the dev dependencies, install them into your virtualenv::
+
+    $ python -m pip install -r requirements_dev.txt
 
 6. Commit your changes and push your branch to GitHub::
 
@@ -102,9 +104,8 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 3.10, 3.11, 3.12, and 3.13, and for PyPy. Check
-   https://travis-ci.com/fbradyirl/webex_bot/pull_requests
-   and make sure that the tests pass for all supported Python versions.
+3. The pull request should work for Python 3.10, 3.11, and 3.12. Check GitHub
+   Actions and make sure that the tests pass for all supported Python versions.
 
 Tips
 ----
@@ -125,4 +126,4 @@ $ bump2version patch # possible: major / minor / patch
 $ git push
 $ git push --tags
 
-Travis will then deploy to PyPI if tests pass.
+GitHub Actions will then deploy to PyPI if tests pass.
