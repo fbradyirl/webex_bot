@@ -424,6 +424,14 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 
 * Allow flag to disable bot to bot check
 
+### 1.1.0 (2026-Jan-31)
+
+* Update dependancies. 
+* Expand test coverage and add CI matrix for Python 3.10–3.12
+* Add coverage reporting and update contributor docs
+* Refresh websocket status handling to avoid deprecations
+
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/WebexCommunity/WebexPythonSDK
