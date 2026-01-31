@@ -10,7 +10,7 @@
 > Bug reports unrelated to API changes may not get the attention you want.
 
 
-By using this module, you can create a [Webex Teams][5] messaging bot quickly in just a couple of lines of code.
+By using this module, you can create a [Webex][5] messaging bot quickly in just a couple of lines of code.
 
 This module does not require you to set up an ngrok tunnel to receive incoming messages when behind a firewall or
 inside a LAN. This package instead uses a websocket to receive messages from the Webex cloud.
@@ -35,7 +35,7 @@ You can find a sample project, using OpenAI/ChatGPT with this library here: http
 
 ----
 
-**Only Python 3.13 is tested at this time.**
+**Python 3.10, 3.11, and 3.12 are tested at this time.**
 
 1. Install this module from pypi:
 
@@ -73,7 +73,7 @@ proxies = {
 # Create a Bot Object
 bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN"),
                approved_rooms=['06586d8d-6aad-4201-9a69-0bf9eeb5766e'],
-               bot_name="My Teams Ops Bot",
+               bot_name="My Webex Ops Bot",
                include_demo_commands=True,
                proxies=proxies)
 
