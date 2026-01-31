@@ -7,14 +7,14 @@ from setuptools import setup, find_packages
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-requirements = ['webexpythonsdk==2.0.4', 'coloredlogs', 'websockets==11.0.3', 'backoff']
+requirements = ['webexpythonsdk==2.0.5', 'coloredlogs', 'websockets==16', 'backoff']
 
 setup_requirements = ['pytest-runner', ]
 
 test_requirements = ['pytest>=3', ]
 
 extras_requirements = {
-    "proxy": ["websockets_proxy>=0.1.1"]
+    "proxy": ["websockets_proxy>=0.1.3"]
 }
 
 setup(
