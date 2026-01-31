@@ -122,7 +122,7 @@ A reminder for the maintainers on how to deploy.
 Make sure all your changes are committed
 Then run::
 
-$ bump2version patch # possible: major / minor / patch
+$ bump2version patch # possible: major / minor / patch (updates webex_bot/__init__.py)
 $ git push
 $ git push --tags
 
