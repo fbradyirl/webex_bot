@@ -1,5 +1,6 @@
 import asyncio
 import json
+import inspect
 import logging
 import socket
 import ssl
@@ -81,6 +82,20 @@ class WebexWebsocketClient(object):
             "User-Agent": f"webex_bot/{__version__}{self.add_to_ua}",
             "trackingid": self.tracking_id
         }
+
+    def _get_websocket_connect_kwargs(self, connect_func):
+        headers = self._get_headers()
+        try:
+            params = inspect.signature(connect_func).parameters
+        except (TypeError, ValueError):
+            return {"extra_headers": headers}
+
+        if "extra_headers" in params:
+            return {"extra_headers": headers}
+        if "additional_headers" in params:
+            return {"additional_headers": headers}
+
+        return {"extra_headers": headers}
 
     def _process_incoming_websocket_message(self, msg):
         """
@@ -261,14 +276,28 @@ class WebexWebsocketClient(object):
             if self.proxies and "wss" in self.proxies:
                 logger.info(f"Using proxy for websocket connection: {self.proxies['wss']}")
                 proxy = Proxy.from_url(self.proxies["wss"])
-                connect = proxy_connect(ws_url, ssl=ssl_context, proxy=proxy, extra_headers=self._get_headers())
+                connect = proxy_connect(
+                    ws_url,
+                    ssl=ssl_context,
+                    proxy=proxy,
+                    **self._get_websocket_connect_kwargs(proxy_connect),
+                )
             elif self.proxies and "https" in self.proxies:
                 logger.info(f"Using proxy for websocket connection: {self.proxies['https']}")
                 proxy = Proxy.from_url(self.proxies["https"])
-                connect = proxy_connect(ws_url, ssl=ssl_context, proxy=proxy, extra_headers=self._get_headers())
+                connect = proxy_connect(
+                    ws_url,
+                    ssl=ssl_context,
+                    proxy=proxy,
+                    **self._get_websocket_connect_kwargs(proxy_connect),
+                )
             else:
                 logger.debug(f"Not using proxy for websocket connection.")
-                connect = websockets.connect(ws_url, ssl=ssl_context, extra_headers=self._get_headers())
+                connect = websockets.connect(
+                    ws_url,
+                    ssl=ssl_context,
+                    **self._get_websocket_connect_kwargs(websockets.connect),
+                )
 
             async with connect as _websocket:
                 self.websocket = _websocket
