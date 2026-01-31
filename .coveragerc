@@ -1,0 +1,3 @@
+[run]
+omit =
+    webex_bot/websockets/*

@@ -17,6 +17,7 @@ class EchoCommand(Command):
         super().__init__(
             command_keyword="echo",
             help_message="Echo Words Back to You!",
+            delete_previous_message=True,
             chained_commands=[EchoCallback()])
 
     def pre_execute(self, message, attachment_actions, activity):
