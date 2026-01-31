@@ -174,7 +174,7 @@ class WebexBot(WebexWebsocketClient):
                     if member.personEmail == user_email:
                         is_user_member = True
             except webexpythonsdk.exceptions.ApiError as apie:
-                log.warn(f"API error: {apie}")
+                log.warning(f"API error: {apie}")
         return is_user_member
 
     def process_incoming_card_action(self, attachment_actions, activity):
@@ -428,7 +428,7 @@ class WebexBot(WebexWebsocketClient):
         try:
             return command.pre_card_load_reply(message, teams_message, activity), False
         except BotException as e:
-            log.warn(f"BotException: {e.debug_message}")
+            log.warning(f"BotException: {e.debug_message}")
             return e.reply_message, e.reply_one_to_one
 
     def run_pre_execute(self, command, message, teams_message, activity):
@@ -438,14 +438,14 @@ class WebexBot(WebexWebsocketClient):
         try:
             return command.pre_execute(message, teams_message, activity), False
         except BotException as e:
-            log.warn(f"BotException: {e.debug_message}")
+            log.warning(f"BotException: {e.debug_message}")
             return e.reply_message, e.reply_one_to_one
 
     def run_command_and_handle_bot_exceptions(self, command, message, teams_message, activity):
         try:
             return command.card_callback(message, teams_message, activity), False
         except BotException as e:
-            log.warn(f"BotException: {e.debug_message}")
+            log.warning(f"BotException: {e.debug_message}")
             return e.reply_message, e.reply_one_to_one
 
     @staticmethod

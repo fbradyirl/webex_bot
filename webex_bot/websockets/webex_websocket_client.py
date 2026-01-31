@@ -10,7 +10,10 @@ import certifi
 import requests
 import websockets
 from webexpythonsdk import WebexAPI
-from websockets.exceptions import InvalidStatusCode
+try:
+    from websockets import InvalidStatus
+except ImportError:  # pragma: no cover - fallback for older websockets versions
+    from websockets.exceptions import InvalidStatus
 
 from webex_bot import __version__
 
@@ -247,7 +250,7 @@ class WebexWebsocketClient(object):
                 websockets.ConnectionClosedOK,
                 websockets.ConnectionClosed,
                 socket.gaierror,
-                InvalidStatusCode,
+            InvalidStatus,
             ),
             max_time=MAX_BACKOFF_TIME
         )
@@ -287,10 +290,11 @@ class WebexWebsocketClient(object):
                 asyncio.get_event_loop().run_until_complete(_connect_and_listen())
                 # If we get here, the connection was successful, so break out of the loop
                 break
-            except InvalidStatusCode as e:
-                logger.error(f"WebSocket handshake to {ws_url} failed with status {e.status_code}")
+            except InvalidStatus as e:
+                status_code = getattr(e.response, "status_code", None)
+                logger.error(f"WebSocket handshake to {ws_url} failed with status {status_code}")
 
-                if e.status_code == 404:
+                if status_code == 404:
                     current_404_retries += 1
                     if current_404_retries >= max_404_retries:
                         logger.error(f"Reached maximum retries ({max_404_retries}) for 404 errors. Giving up.")
