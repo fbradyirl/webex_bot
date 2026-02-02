@@ -29,7 +29,7 @@ jobs:
             -   name: Install dependencies
                 run: |
                     python -m pip install --upgrade pip
-                    pip install tox tox-gh-actions setuptools wheel
+                    pip install tox tox-gh-actions "setuptools<70" wheel
             -   name: Test with tox
                 run: tox
             -   name: Upload coverage artifacts
@@ -48,9 +48,18 @@ jobs:
                 env:
                     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
             -   name: Build distributions
-                run: python setup.py sdist bdist_wheel --universal
+                if: matrix.python-version == '3.12'
+                run: |
+                    rm -rf dist/
+                    pip install "setuptools<70" wheel
+                    python setup.py sdist bdist_wheel --universal
+            -   name: Verify wheel metadata
+                if: matrix.python-version == '3.12'
+                run: |
+                    pip install twine
+                    twine check dist/*
             -   name: Upload release to pypi
                 if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags') && matrix.python-version == '3.12'
-                uses: pypa/gh-action-pypi-publish@v1.11.0
+                uses: pypa/gh-action-pypi-publish@v1.4.1
                 with:
                     password: ${{ secrets.pypi_password }}
