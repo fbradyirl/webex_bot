@@ -1,6 +1,8 @@
 include CONTRIBUTING.rst
 include LICENSE
 include README.md
+include pyproject.toml
+include setup.cfg
 
 recursive-include tests *
 recursive-exclude * __pycache__
