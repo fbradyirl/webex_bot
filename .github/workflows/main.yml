@@ -3,6 +3,8 @@ name: Python package
 on:
     push:
         branches: [ main ]
+        tags:
+            - "v*"
     pull_request:
 
 jobs:
@@ -37,6 +39,14 @@ jobs:
                     path: |
                         coverage.xml
                         htmlcov
+            -   name: Upload coverage to Codecov
+                uses: codecov/codecov-action@v4
+                with:
+                    files: coverage.xml
+                    flags: ${{ matrix.python-version }}
+                    fail_ci_if_error: false
+                env:
+                    CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
             -   name: Build distributions
                 run: python setup.py sdist bdist_wheel --universal
             -   name: Upload release to pypi

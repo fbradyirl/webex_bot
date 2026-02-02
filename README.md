@@ -1,6 +1,6 @@
 # Introduction
 
-[![Pypi](https://img.shields.io/pypi/v/webex_bot.svg)](https://pypi.python.org/pypi/webex_bot) [![Build Status](https://github.com/fbradyirl/webex_bot/workflows/Python%20package/badge.svg)](https://github.com/fbradyirl/webex_bot/actions)
+[![Pypi](https://img.shields.io/pypi/v/webex_bot.svg)](https://pypi.python.org/pypi/webex_bot) [![Build Status](https://github.com/fbradyirl/webex_bot/workflows/Python%20package/badge.svg)](https://github.com/fbradyirl/webex_bot/actions) [![CodeQL](https://github.com/fbradyirl/webex_bot/actions/workflows/codeql.yml/badge.svg)](https://github.com/fbradyirl/webex_bot/actions/workflows/codeql.yml) [![Coverage](https://codecov.io/gh/fbradyirl/webex_bot/branch/main/graph/badge.svg)](https://codecov.io/gh/fbradyirl/webex_bot) [![Release](https://img.shields.io/github/v/release/fbradyirl/webex_bot?sort=semver)](https://github.com/fbradyirl/webex_bot/releases) [![Downloads](https://img.shields.io/pypi/dm/webex_bot)](https://pypi.python.org/pypi/webex_bot)
 
 > [!IMPORTANT]
 > This repository is only sporadically maintained. Breaking API changes will be maintained on a best efforts basis.
@@ -424,7 +424,7 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 
 * Allow flag to disable bot to bot check
 
-### 1.1.0 (2026-Jan-31)
+### 1.1.1 (2026-Jan-31)
 
 * Update dependancies. 
 * Expand test coverage and add CI matrix for Python 3.10–3.12
