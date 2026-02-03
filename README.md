@@ -432,6 +432,11 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 * Refresh websocket status handling to avoid deprecations
 
 
+### 1.2.0 (2026-Feb-03)
+
+* Fix handling websocket 404 to refresh device registrations.
+
+
 [1]: https://github.com/aaugustin/websockets
 
 [2]: https://github.com/WebexCommunity/WebexPythonSDK

@@ -43,6 +43,17 @@ ssl_context.load_verify_locations(certifi.where())
 
 MAX_BACKOFF_TIME = 240
 
+# Exceptions that should trigger backoff retry.
+# NOTE: InvalidStatus is intentionally NOT included here.
+# 404 errors (InvalidStatus) indicate stale device registration and should
+# immediately trigger device refresh in the outer loop, not backoff retries.
+BACKOFF_EXCEPTIONS = (
+    websockets.ConnectionClosedError,
+    websockets.ConnectionClosedOK,
+    websockets.ConnectionClosed,
+    socket.gaierror,
+)
+
 
 class WebexWebsocketClient(object):
     def __init__(self,
@@ -260,13 +271,7 @@ class WebexWebsocketClient(object):
 
         @backoff.on_exception(
             backoff.expo,
-            (
-                websockets.ConnectionClosedError,
-                websockets.ConnectionClosedOK,
-                websockets.ConnectionClosed,
-                socket.gaierror,
-            InvalidStatus,
-            ),
+            BACKOFF_EXCEPTIONS,
             max_time=MAX_BACKOFF_TIME
         )
         async def _connect_and_listen():
