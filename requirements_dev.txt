@@ -3,7 +3,7 @@ wheel==0.46.3
 watchdog==6.0.0
 flake8==7.3.0
 tox==4.34.1
-coverage==7.13.2
+coverage==7.13.3
 Sphinx==8.1.3
 twine==6.2.0
 pytest==9.0.2
