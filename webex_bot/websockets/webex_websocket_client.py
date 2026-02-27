@@ -73,7 +73,6 @@ class WebexWebsocketClient(object):
         # log the tracking ID
         logger.info(f"Tracking ID: {self.tracking_id}")
         self.device_info = None
-        self.device_url = self._get_device_url()
         self.on_message = on_message
         self.on_card_action = on_card_action
         self.proxies = proxies
@@ -85,6 +84,7 @@ class WebexWebsocketClient(object):
             # Connecting through a proxy
             if proxy_connect is None:
                 raise ImportError("Failed to load libraries for proxy, maybe forgot [proxy] option during installation.")
+        self.device_url = self._get_device_url()        
 
     def _get_headers(self):
         return {
