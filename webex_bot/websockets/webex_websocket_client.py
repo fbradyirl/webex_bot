@@ -55,6 +55,14 @@ BACKOFF_EXCEPTIONS = (
 )
 
 
+def _get_running_loop_or_none():
+    """Get the currently running event loop, or None if there isn't one."""
+    try:
+        return asyncio.get_running_loop()
+    except RuntimeError:
+        return None
+
+
 class WebexWebsocketClient(object):
     def __init__(self,
                  access_token,
@@ -78,6 +86,9 @@ class WebexWebsocketClient(object):
         self.proxies = proxies
         self.websocket = None
         self.share_id = None
+        # Event loop reference for cross-thread communication
+        self._loop = None
+        self._stop_event = None
         if self.proxies:
             self.session.proxies = proxies
         if self.proxies:
@@ -197,7 +208,20 @@ class WebexWebsocketClient(object):
         logger.debug(f"WebSocket ack message with id={message_id}")
         ack_message = {'type': 'ack',
                        'messageId': message_id}
-        asyncio.run(self.websocket.send(json.dumps(ack_message)))
+        # Use run_coroutine_threadsafe since this may be called from an executor thread
+        if self._loop is not None and self._loop.is_running():
+            future = asyncio.run_coroutine_threadsafe(
+                self.websocket.send(json.dumps(ack_message)),
+                self._loop
+            )
+            # Wait for the send to complete (with timeout)
+            try:
+                future.result(timeout=10)
+            except Exception as e:
+                logger.warning(f"Failed to ack message {message_id}: {e}")
+        else:
+            # Fallback for edge cases where loop isn't set
+            asyncio.run(self.websocket.send(json.dumps(ack_message)))
         logger.info(f"WebSocket ack message with id={message_id}. Complete.")
 
     def _get_device_url(self):
@@ -244,12 +268,41 @@ class WebexWebsocketClient(object):
         return self.device_info
 
     def stop(self):
-        def terminate():
-            raise SystemExit()
+        """
+        Stop the websocket client gracefully.
 
-        asyncio.get_event_loop().create_task(terminate())
+        Can be called from any thread. Sets a stop event that the run loop monitors.
+        """
+        if self._stop_event is not None:
+            self._stop_event.set()
+        elif self._loop is not None and self._loop.is_running():
+            # Schedule the stop event to be set from the event loop
+            self._loop.call_soon_threadsafe(self._stop_event.set if self._stop_event else lambda: None)
 
-    def run(self):
+    async def stop_async(self):
+        """
+        Stop the websocket client gracefully (async version).
+        """
+        if self._stop_event is not None:
+            self._stop_event.set()
+
+    async def run_async(self):
+        """
+        Async entry point for running the websocket client.
+
+        Use this method when integrating with an existing async application
+        (e.g., FastAPI, aiohttp, or any asyncio-based framework).
+
+        Example usage with FastAPI:
+            @app.on_event("startup")
+            async def startup_event():
+                bot = WebexBot(teams_bot_token="YOUR_TOKEN")
+                asyncio.create_task(bot.run_async())
+        """
+        # Store the event loop reference for cross-thread communication
+        self._loop = asyncio.get_running_loop()
+        self._stop_event = asyncio.Event()
+
         if self.device_info is None:
             if self._get_device_info() is None:
                 logger.error('could not get/create device info')
@@ -263,8 +316,7 @@ class WebexWebsocketClient(object):
             logger.debug("WebSocket Received Message(raw): %s\n" % message)
             try:
                 msg = json.loads(message)
-                loop = asyncio.get_event_loop()
-                loop.run_in_executor(None, self._process_incoming_websocket_message, msg)
+                self._loop.run_in_executor(None, self._process_incoming_websocket_message, msg)
             except Exception as messageProcessingException:
                 logger.warning(
                     f"An exception occurred while processing message. Ignoring. {messageProcessingException}")
@@ -312,18 +364,25 @@ class WebexWebsocketClient(object):
                        'data': {'token': 'Bearer ' + self.access_token}}
                 await self.websocket.send(json.dumps(msg))
 
-                while True:
-                    await _websocket_recv()
+                while not self._stop_event.is_set():
+                    try:
+                        # Use wait_for with timeout to allow checking stop_event periodically
+                        await asyncio.wait_for(_websocket_recv(), timeout=1.0)
+                    except asyncio.TimeoutError:
+                        # Timeout is expected, just continue to check stop_event
+                        continue
 
         # Track the number of consecutive 404 errors to prevent infinite loops
         max_404_retries = 3
         current_404_retries = 0
 
-        while True:
+        while not self._stop_event.is_set():
             try:
-                asyncio.get_event_loop().run_until_complete(_connect_and_listen())
-                # If we get here, the connection was successful, so break out of the loop
-                break
+                await _connect_and_listen()
+                # If stop was requested, break out of the loop
+                if self._stop_event.is_set():
+                    logger.info("Stop requested, exiting run loop.")
+                    break
             except InvalidStatus as e:
                 status_code = getattr(e.response, "status_code", None)
                 logger.error(f"WebSocket handshake to {ws_url} failed with status {status_code}")
@@ -342,12 +401,17 @@ class WebexWebsocketClient(object):
 
                     # Add a delay before retrying to avoid hammering the server
                     logger.info(f"Waiting 5 seconds before retry attempt {current_404_retries}...")
-                    asyncio.get_event_loop().run_until_complete(asyncio.sleep(5))
+                    await asyncio.sleep(5)
                 else:
                     # For non-404 errors, just raise the exception
                     raise
             except Exception as runException:
                 logger.error(f"runException: {runException}")
+
+                # Check if stop was requested
+                if self._stop_event.is_set():
+                    logger.info("Stop requested during exception handling, exiting.")
+                    break
 
                 # Check if we can get device info
                 if self._get_device_info(check_existing=False) is None:
@@ -359,4 +423,34 @@ class WebexWebsocketClient(object):
 
                 # Wait a bit before reconnecting
                 logger.info("Waiting 5 seconds before attempting to reconnect...")
-                asyncio.get_event_loop().run_until_complete(asyncio.sleep(5))
+                await asyncio.sleep(5)
+
+        logger.info("WebSocket client stopped.")
+
+    def run(self):
+        """
+        Synchronous entry point for running the websocket client.
+
+        Use this method for standalone scripts that don't have an existing event loop.
+        For integration with async frameworks (FastAPI, aiohttp, etc.), use run_async() instead.
+
+        Example usage:
+            bot = WebexBot(teams_bot_token="YOUR_TOKEN")
+            bot.run()  # Blocks until stopped
+        """
+        # Check if there's already a running event loop
+        running_loop = _get_running_loop_or_none()
+        if running_loop is not None:
+            raise RuntimeError(
+                "An event loop is already running. "
+                "Use 'await bot.run_async()' or 'asyncio.create_task(bot.run_async())' instead of 'bot.run()' "
+                "when integrating with async frameworks like FastAPI."
+            )
+
+        # No running loop, safe to use asyncio.run()
+        try:
+            asyncio.run(self.run_async())
+        except KeyboardInterrupt:
+            logger.info("Received keyboard interrupt, shutting down.")
+        except SystemExit:
+            logger.info("System exit requested, shutting down.")

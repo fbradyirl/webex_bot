@@ -181,6 +181,60 @@ class EchoCallback(Command):
 
 and off you go!
 
+## Async Support (FastAPI, aiohttp, etc.)
+
+If you're integrating the bot into an existing async application (like FastAPI), use the `run_async()` method instead of `run()`:
+
+### FastAPI Example
+
+```python
+import os
+import asyncio
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from webex_bot.webex_bot import WebexBot
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Create and start the bot on startup
+    bot = WebexBot(
+        teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN"),
+        bot_name="My FastAPI Bot"
+    )
+    # Start the bot in a background task
+    bot_task = asyncio.create_task(bot.run_async())
+
+    yield  # Application runs here
+
+    # Stop the bot on shutdown
+    bot.stop()
+    bot_task.cancel()
+    try:
+        await bot_task
+    except asyncio.CancelledError:
+        pass
+
+
+app = FastAPI(lifespan=lifespan)
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
+```
+
+### Key differences
+
+| Use Case | Method | Description |
+|----------|--------|-------------|
+| Standalone script | `bot.run()` | Blocks and manages its own event loop |
+| Async framework | `await bot.run_async()` | Integrates with existing event loop |
+| Stop the bot | `bot.stop()` | Works from any thread/context |
+
+**Note:** Calling `bot.run()` when an event loop is already running will raise a `RuntimeError` with instructions to use `run_async()` instead.
+
 # Help
 
 * If you are a Cisco employee, and find this useful, consider sending me a [Connected Recognition][8] (cec: `fibrady`) 🙂
@@ -436,6 +490,15 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 
 * Fix handling websocket 404 to refresh device registrations.
 
+### 1.3.0 (2026-Feb-03)
+
+* Add async support for integration with existing async applications (FastAPI, aiohttp, etc.) ([#68][i68])
+* New `run_async()` method for use in async contexts
+* New `stop_async()` method for graceful async shutdown
+* Improved `stop()` method that works reliably from any thread
+* Better error message when `run()` is called with an existing event loop
+
+
 
 [1]: https://github.com/aaugustin/websockets
 
@@ -484,3 +547,5 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 [i20]: https://github.com/fbradyirl/webex_bot/issues/20
 
 [i48]: https://github.com/fbradyirl/webex_bot/issues/48
+
+[i68]: https://github.com/fbradyirl/webex_bot/issues/68
