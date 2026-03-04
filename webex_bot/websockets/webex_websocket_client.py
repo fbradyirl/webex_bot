@@ -113,7 +113,7 @@ class WebexWebsocketClient(object):
         Handle websocket data.
         :param msg: The raw websocket message
         """
-        logger.info(f"msg['data'] = {msg['data']}")
+        logger.debug(f"msg['data'] = {msg['data']}")
         if msg['data']['eventType'] == 'conversation.activity':
             activity = msg['data']['activity']
             if activity['verb'] == 'post':

@@ -440,6 +440,8 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 ### 1.2.1 (2026-Feb-27)
 
 * Fix for proxy loading. ([#96][pr96])
+* Reduce websocket log level on incoming request.
+
 
 [1]: https://github.com/aaugustin/websockets
 
