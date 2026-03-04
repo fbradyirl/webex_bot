@@ -437,7 +437,7 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 * Fix handling websocket 404 to refresh device registrations.
 
 
-### 1.2.2 (2026-Mar-04)
+### 1.2.3 (2026-Mar-04)
 
 * Fix for proxy loading. ([#96][pr96])
 * Reduce websocket log level on incoming request.
