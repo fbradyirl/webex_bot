@@ -208,9 +208,6 @@ class WebexBot(WebexWebsocketClient):
         is_one_on_one_space = 'ONE_ON_ONE' in activity['target']['tags']
 
         if activity['actor']['type'] != 'PERSON':
-            if self.bot_email == user_email:
-                log.warning(f"Message is from myself ({self.bot_email}), ignoring.")
-                return
             if not self.allow_bot_to_bot:
                 log.warning(f"Message is from a bot ({user_email}), ignoring.")
                 return
