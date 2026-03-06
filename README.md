@@ -442,6 +442,10 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 * Fix for proxy loading. ([#96][pr96])
 * Reduce websocket log level on incoming request.
 
+### 1.2.4 (2026-Mar-06)
+* Refactor logging in WebexBot and WebexWebsocketClient to use debug level for detailed internal state information, improving log clarity. 
+* Remove unnecessary info log in HelpCommand. This change enhances the overall logging strategy for better performance and readability.
+
 
 [1]: https://github.com/aaugustin/websockets
 

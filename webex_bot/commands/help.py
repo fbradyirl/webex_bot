@@ -64,7 +64,6 @@ class HelpCommand(Command):
                   ],
             actions=actions)
 
-        log.info(f"Returning help card.")
         return response_from_adaptive_card(adaptive_card=card)
 
     def build_actions_and_hints(self, thread_parent_id):
