@@ -198,7 +198,7 @@ class WebexWebsocketClient(object):
         ack_message = {'type': 'ack',
                        'messageId': message_id}
         asyncio.run(self.websocket.send(json.dumps(ack_message)))
-        logger.info(f"WebSocket ack message with id={message_id}. Complete.")
+        logger.debug(f"WebSocket ack message with id={message_id}. Complete.")
 
     def _get_device_url(self):
         params = {"format": "hostmap"}

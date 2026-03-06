@@ -219,7 +219,7 @@ class WebexBot(WebexWebsocketClient):
                     f"Message is from another bot ({user_email}), and allow_bot_to_bot is {self.allow_bot_to_bot}. Be careful not to create a message loop!")
 
         # Log details on message
-        log.info(f"Message from {user_email}: {teams_message}")
+        log.info(f"Message received from '{user_email}': {teams_message}")
 
         if not self.check_user_approved(user_email=user_email, approved_rooms=self.approved_rooms):
             return
@@ -237,41 +237,41 @@ class WebexBot(WebexWebsocketClient):
         # Find the command that was sent, if any
         command = None
         user_command = raw_message.lower()
-        log.info(f"New user_command: {user_command}")
-        log.info(f"is_card_callback_command: {is_card_callback_command}")
+        log.debug(f"New user_command: {user_command}")
+        log.debug(f"is_card_callback_command: '{is_card_callback_command}'")
 
         for c in self.commands:
             log.debug("--------")
-            log.debug(f"Checking c.command_keyword: {c.command_keyword}")
+            log.debug(f"Checking c.command_keyword: {c.command_keyword}'")
 
             if not is_card_callback_command and c.command_keyword:
                 log.debug(f"c.command_keyword: {c.command_keyword}")
-                log.info(f"exact_command_keyword_match: {c.exact_command_keyword_match}")
-                log.info(f"user_command: {user_command}")
-                log.info(f"command_keyword: {c.command_keyword}")
+                log.debug(f"exact_command_keyword_match: {c.exact_command_keyword_match}")
+                log.debug(f"user_command: {user_command}")
+                log.debug(f"command_keyword: {c.command_keyword}")
                 if c.exact_command_keyword_match: # Check if the "exact_command_keyword_match" flag is set to True
                     if user_command == c.command_keyword:
-                        log.info("Exact match found!")
+                        log.debug(f"Exact match found for command: '{c.command_keyword}'")
                         command=c
                         # If a command was found, stop looking for others
                         break
                 else: # Enter here if the "exact_command_keyword_match" flag is set to False
                     if user_command.find(c.command_keyword) != -1:
-                        log.info("Sub-string match found!")
+                        log.debug(f"Sub-string match found for command: '{c.command_keyword}'")
                         command = c
                         # If a command was found, stop looking for others
                         break
             else:
-                log.debug(f"card_callback_keyword: {c.card_callback_keyword}")
+                log.debug(f"card_callback_keyword: '{c.card_callback_keyword}'")
                 if user_command == c.command_keyword or user_command == c.card_callback_keyword:
                     command = c
                     break
 
         if not command:
-            log.warning(f"Did not find command for {user_command}. Default to help card.")
+            log.warning(f"Did not find command for user entered text: '{user_command}'. Default to help card.")
             command = self.help_command
         else:
-            log.info(f"Found command: {command.command_keyword}")
+            log.debug(f"Found command: '{command.command_keyword}'")
 
             if command.approved_rooms:
                 if not self.check_user_approved(user_email=user_email, approved_rooms=command.approved_rooms):
@@ -301,7 +301,7 @@ class WebexBot(WebexWebsocketClient):
         elif 'id' in activity:
             thread_parent_id = activity['id']
         else:
-            log.info("There is no activity id (thread ID) for this request.")
+            log.debug("There is no activity id (thread ID) for this request.")
 
         if command.delete_previous_message and hasattr(teams_message, 'messageId'):
             previous_message_id = teams_message.messageId
@@ -335,7 +335,7 @@ class WebexBot(WebexWebsocketClient):
                                                                                  message=message_without_command,
                                                                                  teams_message=teams_message,
                                                                                  activity=activity)
-        log.info(f"Using thread id={thread_parent_id}")
+        log.debug(f"thread id={thread_parent_id}")
         final_message_id = self.do_reply(reply, room_id, user_email, reply_one_to_one, is_one_on_one_space, thread_parent_id)
 
         # If requested, delete the pre-execute (or pre-card-load) message once the final reply has been sent
