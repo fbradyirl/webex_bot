@@ -249,13 +249,13 @@ class WebexBot(WebexWebsocketClient):
                 log.debug(f"exact_command_keyword_match: {c.exact_command_keyword_match}")
                 log.debug(f"user_command: {user_command}")
                 log.debug(f"command_keyword: {c.command_keyword}")
-                if c.exact_command_keyword_match: # Check if the "exact_command_keyword_match" flag is set to True
+                if c.exact_command_keyword_match:  # Check if the "exact_command_keyword_match" flag is set to True
                     if user_command == c.command_keyword:
                         log.debug(f"Exact match found for command: '{c.command_keyword}'")
-                        command=c
+                        command = c
                         # If a command was found, stop looking for others
                         break
-                else: # Enter here if the "exact_command_keyword_match" flag is set to False
+                else:  # Enter here if the "exact_command_keyword_match" flag is set to False
                     if user_command.find(c.command_keyword) != -1:
                         log.debug(f"Sub-string match found for command: '{c.command_keyword}'")
                         command = c
@@ -322,7 +322,9 @@ class WebexBot(WebexWebsocketClient):
                                                                                                message=message_without_command,
                                                                                                teams_message=teams_message,
                                                                                                activity=activity)
-            pre_reply_message_id = self.do_reply(pre_card_load_reply, room_id, user_email, pre_card_load_reply_one_to_one, is_one_on_one_space, thread_parent_id)
+            pre_reply_message_id = self.do_reply(
+                pre_card_load_reply, room_id, user_email,
+                pre_card_load_reply_one_to_one, is_one_on_one_space, thread_parent_id)
             reply = response
         else:
             log.debug(f"Going to run command: '{command}' with input: '{message_without_command}'")
@@ -373,19 +375,21 @@ class WebexBot(WebexWebsocketClient):
                     created_message_id = getattr(created, 'id', None)
                 else:
                     # Just a plain message
-                    created_message_id = self.send_message_to_room_or_person(user_email,
-                                                                            room_id,
-                                                                            reply_one_to_one,
-                                                                            is_one_on_one_space,
-                                                                            response,
-                                                                            conv_target_id)
+                    created_message_id = self.send_message_to_room_or_person(
+                        user_email,
+                        room_id,
+                        reply_one_to_one,
+                        is_one_on_one_space,
+                        response,
+                        conv_target_id)
         elif reply:
-            created_message_id = self.send_message_to_room_or_person(user_email,
-                                                                    room_id,
-                                                                    reply_one_to_one,
-                                                                    is_one_on_one_space,
-                                                                    reply,
-                                                                    conv_target_id)
+            created_message_id = self.send_message_to_room_or_person(
+                user_email,
+                room_id,
+                reply_one_to_one,
+                is_one_on_one_space,
+                reply,
+                conv_target_id)
         return created_message_id
 
     def send_message_to_room_or_person(self,

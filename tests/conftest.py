@@ -14,8 +14,8 @@ warnings.filterwarnings(
     module=r"websockets\..*",
 )
 
-from webex_bot.webex_bot import WebexBot
-from webex_bot.websockets.webex_websocket_client import WebexWebsocketClient
+from webex_bot.webex_bot import WebexBot  # noqa: E402
+from webex_bot.websockets.webex_websocket_client import WebexWebsocketClient  # noqa: E402
 
 
 class DummyPerson:

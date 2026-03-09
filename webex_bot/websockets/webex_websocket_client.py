@@ -84,7 +84,7 @@ class WebexWebsocketClient(object):
             # Connecting through a proxy
             if proxy_connect is None:
                 raise ImportError("Failed to load libraries for proxy, maybe forgot [proxy] option during installation.")
-        self.device_url = self._get_device_url()        
+        self.device_url = self._get_device_url()
 
     def _get_headers(self):
         return {
@@ -237,7 +237,6 @@ class WebexWebsocketClient(object):
         logging.info(f"wdm url: {wdm_url}")
         return wdm_url
 
-
     def _get_device_info(self, check_existing=True):
         """
         Get device info from Webex Cloud.
@@ -319,7 +318,7 @@ class WebexWebsocketClient(object):
                     **self._get_websocket_connect_kwargs(proxy_connect),
                 )
             else:
-                logger.debug(f"Not using proxy for websocket connection.")
+                logger.debug("Not using proxy for websocket connection.")
                 connect = websockets.connect(
                     ws_url,
                     ssl=ssl_context,

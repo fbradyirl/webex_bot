@@ -26,7 +26,8 @@ class Command(ABC):
                     )
 
         @param command_keyword: (optional) Text indicating a phrase to invoke this card.
-        @param exact_command_keyword_match: If True, there will be an exact command_keyword match performed. If False, then a sub-string match will be performed. Default: False. 
+        @param exact_command_keyword_match: If True, there will be an exact command_keyword match performed.
+            If False, then a sub-string match will be performed. Default: False.
         @param chained_commands: (optional) List of other commands related
         to this command. This allows multiple related cards to be added at once.
         @param card: (deprecated) A dict representation of the JSON card.

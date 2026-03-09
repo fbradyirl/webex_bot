@@ -450,8 +450,9 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 ### 1.2.5 (2026-Mar-06)
 * Allow bot to same bot messaging
 
-### 1.2.6 (2026-Mar-09)
+### 1.2.7 (2026-Mar-09)
 * Revert previous version as it can cause some strangeness in threads.
+* Enhance code style and tox configuration
 
 
 [1]: https://github.com/aaugustin/websockets
