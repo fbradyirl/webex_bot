@@ -120,6 +120,9 @@ class WebexWebsocketClient(object):
                 logger.debug(f"activity={activity}")
 
                 message_base_64_id = self._get_base64_message_id(activity)
+                if message_base_64_id is None:
+                    logger.warning(f"Could not resolve message id for 'post' activity: {activity.get('id')}")
+                    return
                 webex_message = self.teams.messages.get(message_base_64_id)
                 logger.debug(f"webex_message from message_base_64_id: {webex_message}")
                 if self.on_message:
@@ -145,6 +148,9 @@ class WebexWebsocketClient(object):
                 else:
                     return
                 message_base_64_id = self._get_base64_message_id(activity)
+                if message_base_64_id is None:
+                    logger.warning(f"Could not resolve message id for 'update' activity: {activity.get('id')}")
+                    return
                 webex_message = self.teams.messages.get(message_base_64_id)
                 logger.debug(f"webex_message from message_base_64_id: {webex_message}")
                 if self.on_message:
@@ -156,6 +162,9 @@ class WebexWebsocketClient(object):
                 logger.debug(f"activity={activity}")
 
                 message_base_64_id = self._get_base64_message_id(activity)
+                if message_base_64_id is None:
+                    logger.warning(f"Could not resolve message id for 'cardAction' activity: {activity.get('id')}")
+                    return
                 attachment_actions = self.teams.attachment_actions.get(message_base_64_id)
                 logger.info(f"attachment_actions from message_base_64_id: {attachment_actions}")
                 if self.on_card_action:
@@ -171,7 +180,7 @@ class WebexWebsocketClient(object):
         In order to geo-locate the correct DC to fetch the message from, you need to use the base64 Id of the
         message.
         @param activity: incoming websocket data
-        @return: base 64 message id
+        @return: base 64 message id, or None if the message could not be resolved
         """
         activity_id = activity['id']
         logger.debug(f"activity verb={activity['verb']}. message id={activity_id}")
@@ -184,8 +193,21 @@ class WebexWebsocketClient(object):
         logger.debug(f"activity_id={activity_id}")
         conversation_message_url = conversation_url.replace(f"conversations/{conv_target_id}",
                                                             f"{verb}/{activity_id}")
-        conversation_message = self.session.get(conversation_message_url).json()
+        response = self.session.get(conversation_message_url)
+        if not response.ok:
+            logger.warning(
+                f"Failed to retrieve message from {conversation_message_url}: "
+                f"HTTP {response.status_code}"
+            )
+            return None
+        conversation_message = response.json()
         logger.debug(f"conversation_message={conversation_message}")
+        if 'id' not in conversation_message:
+            logger.warning(
+                f"Response for activity {activity_id} missing 'id' field: "
+                f"{conversation_message}"
+            )
+            return None
         return conversation_message['id']
 
     def _ack_message(self, message_id):
