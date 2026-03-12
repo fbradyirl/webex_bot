@@ -53,6 +53,8 @@ class ExceptionCommand(Command):
 def test_get_message_passed_to_command():
     assert WebexBot.get_message_passed_to_command("help", "help me") == " me"
     assert WebexBot.get_message_passed_to_command("help", "hello") == "hello"
+    assert WebexBot.get_message_passed_to_command("help", None) == ""
+    assert WebexBot.get_message_passed_to_command(None, None) == ""
 
 
 def test_check_user_approved_unrestricted(bot):
@@ -133,6 +135,18 @@ def test_process_raw_command_delete_previous_message(bot, teams_message, one_on_
     bot.process_raw_command("work", teams_message, "user@example.com", one_on_one_activity)
     assert teams_message.messageId in bot.teams.messages.deleted
     assert "message-1" in bot.teams.messages.deleted
+
+
+def test_process_raw_command_none_message_card_action(bot, one_on_one_activity):
+    """Regression test for issue #99: card submission with no callback/command keyword."""
+    attachment_actions = types.SimpleNamespace(
+        inputs={},
+        roomId="room-1",
+    )
+    activity = dict(one_on_one_activity)
+    activity["actor"]["emailAddress"] = "user@example.com"
+    bot.process_incoming_card_action(attachment_actions, activity)
+    assert len(bot.teams.messages.created) >= 1
 
 
 def test_run_pre_execute_handles_bot_exception(bot, teams_message, one_on_one_activity):

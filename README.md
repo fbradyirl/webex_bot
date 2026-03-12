@@ -454,6 +454,9 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 * Revert previous version as it can cause some strangeness in threads.
 * Enhance code style and tox configuration
 
+### 1.2.8 (2026-Mar-12)
+* Fix crash when handling Adaptive Card submissions (attachmentActions) via WebSocket where `raw_message` is `None`. ([#99][i99])
+
 
 [1]: https://github.com/aaugustin/websockets
 
@@ -504,3 +507,5 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 [i20]: https://github.com/fbradyirl/webex_bot/issues/20
 
 [i48]: https://github.com/fbradyirl/webex_bot/issues/48
+
+[i99]: https://github.com/fbradyirl/webex_bot/issues/99

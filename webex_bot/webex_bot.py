@@ -234,6 +234,9 @@ class WebexBot(WebexWebsocketClient):
         room_id = teams_message.roomId
         is_one_on_one_space = 'ONE_ON_ONE' in activity['target']['tags']
 
+        if raw_message is None:
+            raw_message = ""
+
         # Find the command that was sent, if any
         command = None
         user_command = raw_message.lower()
@@ -462,6 +465,6 @@ class WebexBot(WebexWebsocketClient):
         :return: message without command prefix
         """
 
-        if command and message.lower().startswith(command.lower()):
+        if command and message and message.lower().startswith(command.lower()):
             return message[len(command):]
-        return message
+        return message or ""
