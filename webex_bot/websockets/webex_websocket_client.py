@@ -87,12 +87,18 @@ class WebexWebsocketClient(object):
         self.device_url = self._get_device_url()
 
     def _get_headers(self):
-        return {
+
+        headers = {
             "Authorization": f"Bearer {self.access_token}",
             "Content-type": "application/json;charset=utf-8",
             "User-Agent": f"webex_bot/{__version__}{self.add_to_ua}",
             "trackingid": self.tracking_id
         }
+
+        if self.proxies:
+            headers["Connection"] = f"close"
+
+        return headers
 
     def _get_websocket_connect_kwargs(self, connect_func):
         headers = self._get_headers()
