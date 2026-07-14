@@ -457,6 +457,10 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 ### 1.2.8 (2026-Mar-12)
 * Fix crash when handling Adaptive Card submissions (attachmentActions) via WebSocket where `raw_message` is `None`. ([#99][i99])
 
+### 1.3.0 (2026-Jul-14)
+* Add header for connection behind proxy (#112)
+* Update dependancies.
+
 
 [1]: https://github.com/aaugustin/websockets
 
