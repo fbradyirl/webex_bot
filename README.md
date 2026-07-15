@@ -461,6 +461,9 @@ bot = WebexBot(teams_bot_token=os.getenv("WEBEX_ACCESS_TOKEN")
 * Add header for connection behind proxy (#112)
 * Update dependancies.
 
+### 1.3.1 (2026-Jul-15)
+* Fix for #124
+
 
 [1]: https://github.com/aaugustin/websockets
 
