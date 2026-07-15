@@ -67,6 +67,7 @@ class WebexWebsocketClient(object):
         self.tracking_id = f"webex-bot_{uuid.uuid4()}"
         self.session = requests.Session()
         sdk_ua = self.teams._session.headers["User-Agent"]
+        self.proxies = proxies
         self.add_to_ua = f" '{bot_name}' ({sdk_ua})"
         self.session.headers = self._get_headers()
         self.teams._session.update_headers(self._get_headers())
@@ -75,7 +76,6 @@ class WebexWebsocketClient(object):
         self.device_info = None
         self.on_message = on_message
         self.on_card_action = on_card_action
-        self.proxies = proxies
         self.websocket = None
         self.share_id = None
         if self.proxies:
