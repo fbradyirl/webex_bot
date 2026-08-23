@@ -1,4 +1,7 @@
+import asyncio
 from unittest.mock import MagicMock
+
+import pytest
 
 from webex_bot.websockets.webex_websocket_client import (
     WebexWebsocketClient,
@@ -75,6 +78,29 @@ def test_invalid_status_not_in_backoff_exceptions():
         "InvalidStatus should not be in BACKOFF_EXCEPTIONS. "
         "404 errors need immediate device refresh, not backoff retries."
     )
+
+
+def test_run_creates_and_sets_an_event_loop(monkeypatch):
+    client = _make_client()
+    client.device_info = {"webSocketUrl": "wss://example.com"}
+    client.proxies = None
+
+    event_loop = MagicMock()
+
+    def interrupt_run(coroutine):
+        coroutine.close()
+        raise KeyboardInterrupt()
+
+    event_loop.run_until_complete.side_effect = interrupt_run
+    new_event_loop = MagicMock(return_value=event_loop)
+    set_event_loop = MagicMock()
+    monkeypatch.setattr(asyncio, "new_event_loop", new_event_loop)
+    monkeypatch.setattr(asyncio, "set_event_loop", set_event_loop)
+
+    with pytest.raises(KeyboardInterrupt):
+        client.run()
+
+    set_event_loop.assert_called_once_with(event_loop)
 
 
 # --- _get_base64_message_id tests ---

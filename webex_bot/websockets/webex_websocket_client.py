@@ -277,6 +277,12 @@ class WebexWebsocketClient(object):
         asyncio.get_event_loop().create_task(terminate())
 
     def run(self):
+        # Python 3.14 no longer implicitly creates an event loop for
+        # asyncio.get_event_loop(). This client owns its synchronous entry
+        # point, so create and register one explicitly.
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+
         if self.device_info is None:
             if self._get_device_info() is None:
                 logger.error('could not get/create device info')
@@ -290,8 +296,7 @@ class WebexWebsocketClient(object):
             logger.debug("WebSocket Received Message(raw): %s\n" % message)
             try:
                 msg = json.loads(message)
-                loop = asyncio.get_event_loop()
-                loop.run_in_executor(None, self._process_incoming_websocket_message, msg)
+                asyncio.get_running_loop().run_in_executor(None, self._process_incoming_websocket_message, msg)
             except Exception as messageProcessingException:
                 logger.warning(
                     f"An exception occurred while processing message. Ignoring. {messageProcessingException}")
@@ -348,7 +353,7 @@ class WebexWebsocketClient(object):
 
         while True:
             try:
-                asyncio.get_event_loop().run_until_complete(_connect_and_listen())
+                event_loop.run_until_complete(_connect_and_listen())
                 # If we get here, the connection was successful, so break out of the loop
                 break
             except InvalidStatus as e:
@@ -369,7 +374,7 @@ class WebexWebsocketClient(object):
 
                     # Add a delay before retrying to avoid hammering the server
                     logger.info(f"Waiting 5 seconds before retry attempt {current_404_retries}...")
-                    asyncio.get_event_loop().run_until_complete(asyncio.sleep(5))
+                    event_loop.run_until_complete(asyncio.sleep(5))
                 else:
                     # For non-404 errors, just raise the exception
                     raise
@@ -386,4 +391,4 @@ class WebexWebsocketClient(object):
 
                 # Wait a bit before reconnecting
                 logger.info("Waiting 5 seconds before attempting to reconnect...")
-                asyncio.get_event_loop().run_until_complete(asyncio.sleep(5))
+                event_loop.run_until_complete(asyncio.sleep(5))

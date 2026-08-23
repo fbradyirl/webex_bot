@@ -35,7 +35,7 @@ You can find a sample project, using OpenAI/ChatGPT with this library here: http
 
 ----
 
-**Python 3.10, 3.11, and 3.12 are tested at this time.**
+**Python 3.10 through 3.14 are tested.**
 
 1. Install this module from pypi:
 
