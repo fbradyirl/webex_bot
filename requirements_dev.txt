@@ -1,7 +1,7 @@
 bump2version==1.0.1
 wheel==0.48.0
 watchdog==6.0.0
-flake8==7.3.0
+flake8==7.4.0
 tox==4.63.0
 coverage==7.16.1
 Sphinx==8.1.3
